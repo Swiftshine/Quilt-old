@@ -1,0 +1,6 @@
+*.mapbin
+*.enbin
+*.vcxproj*
+x64/
+stage*/
+.vs/
