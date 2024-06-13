@@ -290,3 +290,9 @@ void Editor::ClearNodes() {
 	gmkNodes.clear();
 	enNodes.clear();
 }
+
+void Editor::SaveFile() {
+
+
+	
+}

@@ -34,7 +34,7 @@ void Editor::HandleTabs() {
     int curW, curH;
     glfwGetFramebufferSize(window, &curW, &curH);
 
-    ImGuiWindowFlags window_flags = 0;
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_DockNodeHost | ImGuiWindowFlags_NoBringToFrontOnFocus;
     ImGui::SetNextWindowPos(ImVec2(0, 18));
     ImGui::SetNextWindowSize(ImVec2(static_cast<float>(curW), static_cast<float>(curH)));
 

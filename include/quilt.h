@@ -110,6 +110,8 @@ private:
     void UpdateNodes();
 
     void SetupFile();
+    void SaveFile();
+
     void RenderFile();
     void RenderGrid();
 
