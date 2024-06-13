@@ -6,6 +6,7 @@ Editor::Editor() {
 	window		= nullptr;
 	running		= false;
 	open		= false;
+	dockSetup	= false;
 
 	renderWalls = true;
 	renderPaths = true;
@@ -67,6 +68,7 @@ bool Editor::Setup() {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
+
 	running = true;
 	return true;
 }
@@ -96,16 +98,10 @@ void Editor::Run() {
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		
-		if (first_time) {
-			SetupDocking();
-			first_time = false;
-		}
 
 		HandleMenu();
 
 		HandleTabs();
-
-		HandleFile();
 
 		
 		ImGui::Render();
@@ -132,6 +128,7 @@ void Editor::SetupFile() {
 	ClearSelectedNode();
 	ClearMapdata();
 	ClearNodes();
+
 
 	std::fstream file(filename , std::ios::in | std::ios::binary);
 	if (!file.is_open()) {

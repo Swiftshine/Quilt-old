@@ -11,7 +11,7 @@ GLFWwindow* Editor::GetGLFWWindow() {
 }
 
 void Editor::SetupDocking() {
-    ImGuiID dockspaceID = ImGui::GetID("Quilt_Viewport_DockSpace");
+    ImGuiID dockspaceID = ImGui::GetID("Quilt_Editor_DockSpace");
 
     ImGui::DockBuilderRemoveNode(dockspaceID);
     ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_DockSpace);
@@ -21,9 +21,9 @@ void Editor::SetupDocking() {
     // central node
     ImGuiID dock_MainID = dockspaceID;
     // right node
-    ImGuiID dock_RightID = ImGui::DockBuilderSplitNode(dock_MainID, ImGuiDir_Right, 0.2f, nullptr, &dock_MainID);
+    ImGuiID dock_RightID = ImGui::DockBuilderSplitNode(dock_MainID, ImGuiDir_Right, 0.25f, nullptr, &dock_MainID);
 
-    ImGui::DockBuilderDockWindow("Rendering", dock_MainID);
+    ImGui::DockBuilderDockWindow("Viewport", dock_MainID);
     ImGui::DockBuilderDockWindow("Gimmick Parameters", dock_RightID);
     ImGui::DockBuilderDockWindow("Enemy Parameters", dock_RightID);
     ImGui::DockBuilderFinish(dockspaceID);
@@ -53,26 +53,25 @@ void Editor::HandleTabs() {
     ImGui::End();
 }
 
-static bool dock_is_setup = false;
 void Editor::HandleViewport() {
 
-    if (ImGui::BeginTabItem("Viewport")) {
+    if (ImGui::BeginTabItem("Editor")) {
         if (!open) {
             ImGui::EndTabItem();
             return;
         }
 
-        if (!dock_is_setup) {
+        if (!dockSetup) {
             SetupDocking();
-            dock_is_setup = true;
+            dockSetup;
         }
-        ImGuiID dockspace_id = ImGui::GetID("Quilt_Viewport_DockSpace");
-        ImGui::BeginChild("Quilt_Viewport_DockSpace", ImVec2(0, 0), 0, ImGuiWindowFlags_NoMove);
+        ImGuiID dockspace_id = ImGui::GetID("Quilt_Editor_DockSpace");
+        ImGui::BeginChild("Quilt_Editor_DockSpace", ImVec2(0, 0), 0, ImGuiWindowFlags_NoMove);
         ImGui::DockSpace(dockspace_id);
 
         HandleFileDropdown();
 
-        if (ImGui::Begin("Rendering")) {
+        if (ImGui::Begin("Viewport")) {
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) ClearSelectedNode();
             RenderFile();
             HandleParameters();
@@ -142,9 +141,6 @@ void Editor::HandleParameters() {
         case NodeBase::NodeType_Enemy:
             HandleEnemyParameters(); break;
     }
-    
-
-    
 }
 
 void Editor::HandleGimmickParameters() {
@@ -221,49 +217,37 @@ void Editor::HandleEnemyParameters() {
 
 
 void Editor::HandleMenu() {
-    if (ImGui::BeginMainMenuBar()) {
-        if (ImGui::BeginMenu("File")) {
-            if (ImGui::MenuItem("Open", NULL, false)) {
-                // ImGuiFileDialog doesn't have an option to open a folder,
-                // so the user will open a mapdata file instead. any one will do
-                ImGuiFileDialog::Instance()->OpenDialog("ChooseMapdataFile", "Choose a mapdata file. The editor will open the folder its in.", ".mapbin,.enbin");
+    ImGui::BeginMainMenuBar();
+    if (ImGui::BeginMenu("File")) {
+        if (ImGui::MenuItem("Open", NULL, false)) {
+            nfdchar_t* outPath = nullptr;
+            nfdresult_t result = NFD_PickFolder(nullptr, &outPath);
+            
+            if (NFD_OKAY == result) {
+                folderPath = outPath;
+                free(outPath);
             }
-            ImGui::EndMenu();
-        }
-        ImGui::EndMainMenuBar();
-    }
-}
+            else if (NFD_CANCEL == result) {
+                // the user cancelled
+                ImGui::EndMenu();
+                ImGui::EndMainMenuBar();
+                return;
+            }
+            else {
+                // idk
+                printf("Warning - NFD failed to open folder. Error: %s\n", NFD_GetError());
+                ImGui::EndMenu();
+                ImGui::EndMainMenuBar();
+                return;
+            }
 
-void Editor::HandleFile() {
-    if (ImGuiFileDialog::Instance()->Display("ChooseMapdataFile")) {
-        if (ImGuiFileDialog::Instance()->IsOk()) {
             selectedFileIndex = 0;
             selectedFile = "";
-            filenames.clear();
+        
+            folderName = folderPath.substr(folderPath.find_last_of("/\\") + 1);
+            folderPath += '/';
 
-            // ImGuiFileDialog's string functions seem to work differently
-            // for the first file in a directory, so let's work around it
-            std::string file_name = ImGuiFileDialog::Instance()->GetFilePathName();
-
-            // if the file is the first one, cut the rest of the path out
-            file_name = fs::path(file_name).filename().string();
-
-            // the filename is now correct and we can continue
-
-            std::string folder_path = ImGuiFileDialog::Instance()->GetCurrentPath();
-
-
-            // next we need to get the folder's base name, not path
-            // unfortunately, std::filesystem doesn't seem to have a function
-            // that does this for folder names, so we'll have to do it ourselves
-            auto lastSlash = folder_path.find_last_of("/\\");
-            std::string folder_name = folder_path.substr(lastSlash + 1);
-
-            // okay, we finally have a normal string name, we're done with it for now
-            folderName = folder_name;
-            folderPath = folder_path +  '/'; // using a forward slash because every OS supports one
-
-            std::set<std::string> unique_names;
+            std::set<std::string> uniqueNames;
 
             for (const auto& entry : fs::directory_iterator(folderPath)) {
                 if (!entry.is_regular_file()) continue;
@@ -274,14 +258,17 @@ void Editor::HandleFile() {
 
                 if (!(".mapbin" == extension || ".enbin" == extension)) continue;
 
-                unique_names.insert(path.stem().string());
+                uniqueNames.insert(path.stem().string());
             }
 
-            filenames.assign(unique_names.begin(), unique_names.end());
-            selectedFile = filenames[0];
-            if (!selectedFile.empty()) SetupFile();
-        }
+            filenames.assign(uniqueNames.begin(), uniqueNames.end());
+            if (!filenames.empty()) {
+                selectedFile = filenames[0];
+                SetupFile();
+            }
 
-        ImGuiFileDialog::Instance()->Close();
+        }
+        ImGui::EndMenu();
     }
+    ImGui::EndMainMenuBar();
 }

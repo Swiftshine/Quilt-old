@@ -1,5 +1,5 @@
 #pragma once
-#pragma warning(disable : 4996) // just so it compiles
+
 
 const int CIRCLE_SEGMENT_COUNT = 32;
 const float SQUARE_SIZE = 8.0f;
@@ -11,11 +11,15 @@ const int MAX_SLOTS = 4;
 #include <fstream>
 #include <string>
 #include <vector>
+
+
+#include <nfd.h>
+
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
-#include <ImGuiFileDialog.h>
+
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -109,7 +113,6 @@ private:
 
     void HandleMenu();
     void HandleTabs();
-    void HandleFile();
     void HandleFileDropdown();
     void HandleViewport();
     void HandleSettings();
@@ -124,8 +127,10 @@ private:
 private:
     GLFWwindow* window;
     bool        running;
+    bool        dockSetup;
     std::string folderPath;
     std::string folderName;
+
     std::vector<std::string> filenames;
     int selectedFileIndex;
     std::string selectedFile;
