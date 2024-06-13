@@ -31,11 +31,10 @@ void Editor::SetupDocking() {
 
 
 void Editor::HandleTabs() {
-    
     int curW, curH;
     glfwGetFramebufferSize(window, &curW, &curH);
 
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus;
+    ImGuiWindowFlags window_flags = 0;
     ImGui::SetNextWindowPos(ImVec2(0, 18));
     ImGui::SetNextWindowSize(ImVec2(static_cast<float>(curW), static_cast<float>(curH)));
 
@@ -54,7 +53,6 @@ void Editor::HandleTabs() {
 }
 
 void Editor::HandleViewport() {
-
     if (ImGui::BeginTabItem("Editor")) {
         if (!open) {
             ImGui::EndTabItem();
@@ -65,28 +63,30 @@ void Editor::HandleViewport() {
             SetupDocking();
             dockSetup;
         }
+
         ImGuiID dockspace_id = ImGui::GetID("Quilt_Editor_DockSpace");
         ImGui::BeginChild("Quilt_Editor_DockSpace", ImVec2(0, 0), 0, ImGuiWindowFlags_NoMove);
         ImGui::DockSpace(dockspace_id);
 
-        HandleFileDropdown();
-
         if (ImGui::Begin("Viewport")) {
-            if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) ClearSelectedNode();
+            HandleFileDropdown();
+            RenderGrid();
             RenderFile();
             HandleParameters();
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) ClearSelectedNode();
             UpdateNodes();
             ImGui::End();
         }
         ImGui::EndChild();
-
         ImGui::EndTabItem();
     }
 }
 
 
 void Editor::HandleFileDropdown() {
-    ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove;
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
+    ImGui::SetNextWindowPos(ImVec2(10, 100));
+
     ImGui::Begin("Files", nullptr, flags);
 
     if (filenames.empty()) {
@@ -123,6 +123,10 @@ void Editor::HandleSettings() {
 
         b = renderEnemies;
         if (ImGui::Checkbox("Render Enemies", &b)) renderEnemies = b;
+
+        b = renderGrid;
+        if (ImGui::Checkbox("Render Grid*", &b)) renderGrid = b;
+        if (ImGui::IsItemHovered()) DrawTooltip("The grid is not always accurate.");
         ImGui::EndTabItem();
     }
 }
@@ -200,6 +204,7 @@ void Editor::HandleGimmickParameters() {
     }
     ImGui::End();
 }
+
 void Editor::HandleEnemyParameters() {
     EnNode* node = static_cast<EnNode*>(GetSelectedNode());
     ImGui::Begin("Enemy Parameters");
@@ -207,7 +212,7 @@ void Editor::HandleEnemyParameters() {
     ImGui::InputFloat("X Position", &node->position.x, 0.1f, 1.f);
     ImGui::InputFloat("Y Position", &node->position.y, 0.1f, 1.0f);
     ImGui::InputText("Behavior", node->behavior.data(), 0x20);
-    ImGui::InputText("unk 1",    node->unk1.data(), 0x20);
+    ImGui::InputText("Target",    node->unk1.data(), 0x20);
     ImGui::InputText("Bead Type",    node->beadType.data(), 0x20);
     ImGui::InputText("Bead Color",    node->beadColor.data(), 0x20);
     ImGui::InputText("Direction",    node->direction.data(), 0x20);

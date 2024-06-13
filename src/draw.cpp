@@ -60,3 +60,30 @@ void Editor::DrawTooltip(std::string str) {
 		ImGui::SetTooltip("%s", str.c_str());
 	}
 }
+
+void Editor::RenderGrid() {
+	if (!renderGrid) return;
+
+
+	ImVec2 position = ImGui::GetCursorScreenPos();
+	ImVec2 size = ImGui::GetContentRegionAvail();
+
+	float cellSize = GRID_CELL_SIZE * camera.zoom;
+
+	ImU32 color = IM_COL32(255, 255, 255, 0x10);
+
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+	int vertical_lines = static_cast<int>(size.x / cellSize);
+	int horizontal_lines = static_cast<int>(size.y / cellSize);
+
+	for (int i = 0; i < vertical_lines; i++) {
+		float x = position.x + i * cellSize;
+		draw_list->AddLine(ImVec2(x, position.y), ImVec2(x, position.y + size.y), color);
+	}
+
+	for (int i = 0; i <= horizontal_lines; i++) {
+		float y = position.y + i * cellSize;
+		draw_list->AddLine(ImVec2(position.x, y), ImVec2(position.x + size.x, y), color);
+	}
+}

@@ -22,8 +22,11 @@ public:
 
     bool RectHover();
     bool RectClick();
+    void HandleDragging();
+    void EnableDragging();
+    void DisableDragging();
     void Draw();
-
+    void Update();
 public:
     std::string name;
     Vec2f       position;
@@ -34,7 +37,8 @@ public:
     NodeType    nodeType;
     DrawTypes   drawType;
     bool        isSelected;
-    
+private:
+    bool        draggable;
 };
 
 class GmkNode : public NodeBase {

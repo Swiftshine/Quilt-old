@@ -32,17 +32,19 @@ void Editor::UpdateCamera() {
 	camera.w = static_cast<float>(dimensions.x);
 	camera.h = static_cast<float>(dimensions.y);
 
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)		camera.y = (camera.y + camera.speed);
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)	camera.y = (camera.y - camera.speed);
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)	camera.x = (camera.x + camera.speed);
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)	camera.x = (camera.x - camera.speed);
+	// this part is just for the relatively hacky node dragging
+	if (ImGui::IsMouseDown(ImGuiMouseButton_Left)) return;
 
-	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+	if (ImGui::IsKeyDown(ImGuiKey_UpArrow)) camera.y = (camera.y + camera.speed);
+	if (ImGui::IsKeyDown(ImGuiKey_LeftArrow)) camera.x = (camera.x + camera.speed);
+	if (ImGui::IsKeyDown(ImGuiKey_DownArrow)) camera.y = (camera.y - camera.speed);
+	if (ImGui::IsKeyDown(ImGuiKey_RightArrow)) camera.x = (camera.x - camera.speed);
+
+	if (ImGui::IsKeyDown(ImGuiKey_R)) {
 		camera.x = 0.0f;
 		camera.y = 0.0f;
 		camera.zoom = 1.0f;
 	}
-
 }
 
 Vec2f Editor::GetWindowDimensions() {

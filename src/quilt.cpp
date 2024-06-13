@@ -6,13 +6,14 @@ Editor::Editor() {
 	window		= nullptr;
 	running		= false;
 	open		= false;
+	saved		= false;
 	dockSetup	= false;
 
 	renderWalls = true;
 	renderPaths = true;
 	renderGimmicks = true;
 	renderEnemies = true;
-
+	renderGrid = false;
 
 	selectedNode = nullptr;
 
@@ -255,8 +256,7 @@ void Editor::UpdateNodes() {
 	if (renderGimmicks) {
 		for (int i = 0; i < gmkNodes.size(); i++) {
 			GmkNode* node = &gmkNodes[i];
-			node->Draw();
-
+			node->Update();
 			if (node->RectClick()) SetSelectedNode(node);
 		}
 	}
@@ -265,8 +265,7 @@ void Editor::UpdateNodes() {
 	if (renderEnemies) {
 		for (int i = 0; i < enNodes.size(); i++) {
 			EnNode* node = &enNodes[i];
-			node->Draw();
-
+			node->Update();
 			if (node->RectClick()) SetSelectedNode(node);
 		}
 	}

@@ -4,6 +4,7 @@
 const int CIRCLE_SEGMENT_COUNT = 32;
 const float SQUARE_SIZE = 8.0f;
 const int MAX_SLOTS = 4;
+const float GRID_CELL_SIZE = 4.0f;
 
 #include <cstring>
 #include <cstdio>
@@ -110,6 +111,7 @@ private:
 
     void SetupFile();
     void RenderFile();
+    void RenderGrid();
 
     void HandleMenu();
     void HandleTabs();
@@ -135,6 +137,7 @@ private:
     int selectedFileIndex;
     std::string selectedFile;
     bool        open;
+    bool        saved;
 
     std::vector<GmkNode> gmkNodes;
     std::vector<EnNode> enNodes;
@@ -152,7 +155,7 @@ private:
     bool renderGimmicks;
     bool renderPaths;
     bool renderEnemies;
-
+    bool renderGrid;
     
     std::vector<GMKParameter> cachedParams;
     std::string cachedParamName;
