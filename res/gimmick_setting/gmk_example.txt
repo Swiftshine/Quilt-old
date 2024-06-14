@@ -1,9 +1,0 @@
-# Hi, welcome to my arbitary parameter format.
-# Lines beginning with a '#' are comments.
-# Lines beginning with a '$' are descriptions.
-
-# Let's define a parameter. A parameter looks like this:
-# name : data type : slot
-
-$ An example parameter.
-"example" : int : 1

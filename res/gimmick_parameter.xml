@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<gimmicks>
+    <gimmick>
+        <name>StageRankSetting</name>
+        <parameters>
+            <parameter>
+                <title>Bronze Threshold</title>
+                <data_type>int</data_type>
+                <slot>0</slot>
+                <description>The number of beads required to get a bronze ranking.</description>
+            </parameter>
+            <parameter>
+                <title>Silver Threshold</title>
+                <data_type>int</data_type>
+                <slot>1</slot>
+                <description>The number of beads required to get a silver ranking.</description>
+            </parameter>
+            <parameter>
+                <title>Gold Threshold</title>
+                <data_type>int</data_type>
+                <slot>2</slot>
+                <description>The number of beads required to get a gold ranking.</description>
+            </parameter>
+        </parameters>
+    </gimmick>
+
+    <gimmick>
+        <name>WoolBridge</name>
+        <parameters>
+            <parameter>
+                <title>Length</title>
+                <data_type>float</data_type>
+                <slot>1</slot>
+                <description></description>
+            </parameter>
+        </parameters>
+    </gimmick>
+</gimmicks>

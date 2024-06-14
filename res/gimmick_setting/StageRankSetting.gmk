@@ -1,8 +1,0 @@
-$ The number of beads required to get a bronze ranking.
-Bronze Threshold : int : 1
-
-$ The number of beads required to get a silver ranking.
-Silver Threshold : int : 2
-
-$ The number of beads required to get a gold ranking.
-Gold Threshold : int : 3

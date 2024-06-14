@@ -11,6 +11,7 @@ NodeBase::NodeBase() {
 	drawType = DrawType_Square;
 	isSelected = false;
 	draggable = false;
+	paramsShown = false;
 	nodeType = NodeType_Base;
 }
 
@@ -80,7 +81,7 @@ void NodeBase::Draw() {
 	}
 }
 
-GmkNode::GmkNode() { params = { 0 }; }
+GmkNode::GmkNode() { }
 
 GmkNode::~GmkNode() { }
 

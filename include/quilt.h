@@ -3,7 +3,7 @@
 
 const int CIRCLE_SEGMENT_COUNT = 32;
 const float SQUARE_SIZE = 8.0f;
-const int MAX_SLOTS = 4;
+const int MAX_SLOTS = 3;
 const float GRID_CELL_SIZE = 4.0f;
 
 #include <cstring>
@@ -12,7 +12,11 @@ const float GRID_CELL_SIZE = 4.0f;
 #include <fstream>
 #include <string>
 #include <vector>
+#include <map>
+#include <set>
+#include <sstream>
 
+#include <rapidxml.hpp>
 
 #include <nfd.h>
 
@@ -27,7 +31,7 @@ const float GRID_CELL_SIZE = 4.0f;
 
 #include "camera.h"
 #include "mapdata.h"
-#include "parse.h"
+#include "parameter.h"
 #include "node.h"
 
 
@@ -110,7 +114,10 @@ private:
     void UpdateNodes();
 
     void SetupFile();
-    void SaveFile();
+    //void SaveFile();
+
+    void LoadParameters();
+    void ReloadParameters();
 
     void RenderFile();
     void RenderGrid();
@@ -158,7 +165,11 @@ private:
     bool renderPaths;
     bool renderEnemies;
     bool renderGrid;
-    
-    std::vector<GMKParameter> cachedParams;
+
+    std::string gimmickParameterXMLContents;
+
     std::string cachedParamName;
+
+    std::vector<std::pair<std::string, std::vector<GmkParamInfo>>> gmkParams;
+    std::vector<std::pair<std::string, Translation>> translations;
 };

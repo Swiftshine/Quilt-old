@@ -24,8 +24,7 @@ Editor::Editor() {
 
 Editor::~Editor() {
 	ClearMapdata();
-
-	cachedParams.clear();
+	translations.clear();
 }
 
 
@@ -69,6 +68,10 @@ bool Editor::Setup() {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
+
+	
+
+	LoadParameters();
 
 	running = true;
 	return true;
@@ -154,6 +157,7 @@ void Editor::SetupFile() {
 	for (int i = 0; i < Swap32(mapHeader.gimmickCount); i++) {
 		Mapdata::Mapbin::Gimmick gimmick;
 		file.read((char*)&gimmick, sizeof(gimmick));
+		if ("NONE" == std::string(gimmick.name)) continue;
 		gimmicks.push_back(gimmick);
 
 		GmkNode node;
@@ -276,11 +280,13 @@ void Editor::SetSelectedNode(NodeBase* node) {
 	ClearSelectedNode();
 	selectedNode = node;
 	selectedNode->isSelected = true;
+	selectedNode->paramsShown = false;
 }
 
 void Editor::ClearSelectedNode() {
 	if (!selectedNode) return;
 	selectedNode->isSelected = false;
+	selectedNode->paramsShown = false;
 	selectedNode = nullptr;
 }
 
@@ -291,8 +297,64 @@ void Editor::ClearNodes() {
 	enNodes.clear();
 }
 
-void Editor::SaveFile() {
+// void Editor::SaveFile() {
+// 
+// }
 
+void Editor::LoadParameters() {
+	if (gimmickParameterXMLContents.empty()) {
 
-	
+		std::ifstream file("res/gimmick_parameter.xml");
+		std::stringstream buf;
+		buf << file.rdbuf();
+		file.close();
+		gimmickParameterXMLContents = buf.str();
+
+		gmkParams.clear();
+		translations.clear();
+		cachedParamName.clear();
+	}
+
+	try {
+		// parse XML
+		rapidxml::xml_document<> doc;
+		doc.parse<0>(&gimmickParameterXMLContents[0]);
+
+		// get root
+		rapidxml::xml_node<>* root = doc.first_node("gimmicks");
+
+		// iterate over gimmick nodes
+		for (rapidxml::xml_node<>* gimmick_xml_node = root->first_node("gimmick"); gimmick_xml_node; gimmick_xml_node = gimmick_xml_node->next_sibling("gimmick")) {
+			std::string gimmick_name = gimmick_xml_node->first_node("name")->value();
+
+			std::vector<GmkParamInfo> params;
+
+			// iterate through parameters in the xml
+			
+			rapidxml::xml_node<>* parameters_node = gimmick_xml_node->first_node("parameters");
+			
+			if (parameters_node) {
+				for (rapidxml::xml_node<>* parameter_node = gimmick_xml_node->first_node("parameters")->first_node("parameter"); parameter_node; parameter_node = parameter_node->next_sibling("parameter")) {
+					GmkParamInfo info;
+					info.title = parameter_node->first_node("title")->value();
+					info.data_type = parameter_node->first_node("data_type")->value();
+					info.slot = std::stoi(parameter_node->first_node("slot")->value());
+					info.description = parameter_node->first_node("description")->value();
+
+					params.push_back(info);
+				}
+			}
+
+			gmkParams.emplace_back(gimmick_name, params);
+		}
+	}
+	catch (const std::exception& e) {
+		printf("Error loading gimmick parameters: %s\n", e.what());
+		return;
+	}
+}
+
+void Editor::ReloadParameters() {
+	gimmickParameterXMLContents.clear();
+	LoadParameters();
 }

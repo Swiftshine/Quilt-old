@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<translations>
+    <translation>
+        <quilt_identifier>SEA_TURTLE</quilt_identifier>
+        <shift_jis_bytes>8345837e834b838100</shift_jis_bytes>
+        <utf8_string>ウミガメ</utf8_string>
+        <english_string>sea_turtle_01</english_string>
+        <comment>A sea turtle.</comment>
+    </translation>
+    <translation>
+        <quilt_identifier>BREAKABLE_STRUCTURE</quilt_identifier>
+        <shift_jis_bytes>427265616B61626C65537472756374757265</shift_jis_bytes>
+        <utf8_string>BreakableStructure</utf8_string>
+        <english_string>BreakableStructure</english_string>
+        <comment>Used in the first level.</comment>
+    </translation>
+</translations>

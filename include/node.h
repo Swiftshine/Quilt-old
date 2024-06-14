@@ -37,6 +37,7 @@ public:
     NodeType    nodeType;
     DrawTypes   drawType;
     bool        isSelected;
+    bool        paramsShown;
 private:
     bool        draggable;
 };

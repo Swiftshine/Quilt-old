@@ -2,7 +2,6 @@
 #include <set>
 
 #include "quilt.h"
-#include "parse.h"
 
 namespace fs = std::filesystem;
 
@@ -34,7 +33,7 @@ void Editor::HandleTabs() {
     int curW, curH;
     glfwGetFramebufferSize(window, &curW, &curH);
 
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_DockNodeHost | ImGuiWindowFlags_NoBringToFrontOnFocus;
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBringToFrontOnFocus;
     ImGui::SetNextWindowPos(ImVec2(0, 18));
     ImGui::SetNextWindowSize(ImVec2(static_cast<float>(curW), static_cast<float>(curH)));
 
@@ -133,8 +132,7 @@ void Editor::HandleSettings() {
 
 void Editor::HandleParameters() {
     if (!GetSelectedNode()) {
-        if (!cachedParamName.empty()) cachedParamName = "";
-        if (0 != cachedParams.size()) cachedParams.clear();
+        cachedParamName.clear();
         return;
     }
 
@@ -153,55 +151,40 @@ void Editor::HandleGimmickParameters() {
     std::string title = "Gimmick Parameters";
     ImGui::Begin(title.c_str());
     
-    
     ImGui::InputText("Name", node->name.data(), 0x20);
     ImGui::InputFloat("X Position", &node->position.x, 0.1f, 1.f);
     ImGui::InputFloat("Y Position", &node->position.y, 0.1f, 1.0f);
 
-    if (node->name != cachedParamName) {
-        cachedParams.clear();
-        cachedParamName = node->name;
-        auto ptr = parser.OpenGMK(node->name);
+    cachedParamName = node->name;
 
-        if (!ptr) {
-            cachedParams.clear();
-            parser.Close();
-            ImGui::End();
-            return;
-        }
+    for (auto& [gimmick_name, params] : gmkParams) {
+        if (gimmick_name != node->name) continue;
 
+        for (auto& info : params) {
+            // slot needs to be valid
+            if (info.slot >= MAX_SLOTS || info.slot < 0) continue;
 
-        cachedParams = *ptr;
-        parser.Close();
-    }
+            if ("int" == info.data_type) {
+                int val = Swap32(node->params.ints[info.slot]);
 
-    int numParams = cachedParams.size();
+                ImGui::InputInt(info.title.c_str(), &val, 1, 10);
+                if (ImGui::IsItemHovered()) {
+                    Editor::DrawTooltip(info.description);
+                }
+            }
+            else if ("float" == info.data_type) {
+                float val = SwapF32(node->params.floats[info.slot]);
 
-    for (const GMKParameter& param : cachedParams) {
-        if (param.slot >= MAX_SLOTS) continue;
-
-        if (GetSelectedNode()->nodeType != NodeBase::NodeType::NodeType_Gimmick) break;
-
-        GmkNode* gmkNode = static_cast<GmkNode*>(GetSelectedNode());
-
-        if ("int" == param.dataType) {
-
-            int val = Swap32(gmkNode->params.ints[param.slot - 1]);
-
-            ImGui::InputInt(param.name.c_str(), &val, 1, 10);
-            if (ImGui::IsItemHovered()) {
-                Editor::DrawTooltip(param.description);
+                ImGui::InputFloat(info.title.c_str(), &val, 0.1f, 1.0f);
+                if (ImGui::IsItemHovered()) {
+                    Editor::DrawTooltip(info.description);
+                }
             }
         }
-        else if ("float" == param.dataType) {
-            float val = SwapF32(gmkNode->params.floats[param.slot - 1]);
-
-            ImGui::InputFloat(param.name.c_str(), &val, 0.1f, 1.0f);
-            if (ImGui::IsItemHovered()) {
-                Editor::DrawTooltip(param.description);
-            }
-        }
+        
     }
+
+
     ImGui::End();
 }
 
@@ -224,7 +207,7 @@ void Editor::HandleEnemyParameters() {
 void Editor::HandleMenu() {
     ImGui::BeginMainMenuBar();
     if (ImGui::BeginMenu("File")) {
-        if (ImGui::MenuItem("Open", NULL, false)) {
+        if (ImGui::MenuItem("Open")) {
             nfdchar_t* outPath = nullptr;
             nfdresult_t result = NFD_PickFolder(nullptr, &outPath);
             
@@ -273,6 +256,15 @@ void Editor::HandleMenu() {
             }
 
         }
+
+        if (ImGui::MenuItem("Save")) {
+            //SaveFile();
+        }
+
+        if (ImGui::MenuItem("Reload Parameters")) {
+            ReloadParameters();
+        }
+
         ImGui::EndMenu();
     }
     ImGui::EndMainMenuBar();
