@@ -162,5 +162,27 @@
             </parameter>
         </parameters>
     </common_gimmick>
+    <common_gimmick>
+        <quilt_identifier>ENEMY_GENERATOR_1</quilt_identifier>
+        <parameters>
+            <parameter>
+                <title>Enemy Type</title>
+                <data_type>string</title>
+                <slot>0</slot>
+                <description>The name of the enemy being generated.</description>
+            </parameter>
+        </parameters>
+    </common_gimmick>
+    <common_gimmick>
+        <quilt_identifier>CLOTH_TURN_COMMON</quilt_identifier>
+        <parameters>
+            <parameter>
+                <title>Uncover target</title>
+                <data_type>string</title>
+                <slot>0</slot>
+                <description>A link code that identifies what this cloth will uncover.</description>
+            </parameter>
+        </parameters>
+    </common_gimmick>
 </common_gimmicks>
 </root>

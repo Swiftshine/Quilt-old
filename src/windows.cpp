@@ -317,7 +317,7 @@ void Editor::HandleEnemyParameters() {
     ImGui::InputFloat("X Position", &node->position.x, 0.1f, 1.f);
     ImGui::InputFloat("Y Position", &node->position.y, 0.1f, 1.0f);
     ImGui::InputText("Behavior", node->behavior.data(), 0x20);
-    ImGui::InputText("Path Name",    node->pathName.data(), 0x20);
+    ImGui::InputText("Link Code",    node->pathName.data(), 0x20);
     ImGui::InputText("Bead Type",    node->beadType.data(), 0x20);
     ImGui::InputText("Bead Color",    node->beadColor.data(), 0x20);
     ImGui::InputText("Direction",    node->direction.data(), 0x20);

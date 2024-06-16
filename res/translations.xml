@@ -68,6 +68,41 @@
         <shift_jis_bytes>95AC90858251</shift_jis_bytes>
         <english_string>fountain_02</english_string>
     </translation>
+    <translation>
+        <quilt_identifier>ENEMY_GENERATOR_1</quilt_identifier>
+        <shift_jis_bytes>93 47 90 B6 90 AC</shift_jis_bytes>
+        <english_string>enemyGenerator_01</english_string>
+    </translation>
+     <translation>
+        <quilt_identifier>CLOTH_TURN_COMMON</quilt_identifier>
+        <shift_jis_bytes>82 DF 82 AD 82 E8 95 7A 94 C4 97 70</shift_jis_bytes>
+        <english_string>clothTurnCommon</english_string>
+    </translation>
+     <translation>
+        <quilt_identifier></quilt_identifier>
+        <shift_jis_bytes></shift_jis_bytes>
+        <english_string></english_string>
+    </translation>
+     <translation>
+        <quilt_identifier></quilt_identifier>
+        <shift_jis_bytes></shift_jis_bytes>
+        <english_string></english_string>
+    </translation>
+     <translation>
+        <quilt_identifier></quilt_identifier>
+        <shift_jis_bytes></shift_jis_bytes>
+        <english_string></english_string>
+    </translation>
+     <translation>
+        <quilt_identifier></quilt_identifier>
+        <shift_jis_bytes></shift_jis_bytes>
+        <english_string></english_string>
+    </translation>
+     <translation>
+        <quilt_identifier></quilt_identifier>
+        <shift_jis_bytes></shift_jis_bytes>
+        <english_string></english_string>
+    </translation>
 </root>
 
 <!-- template
