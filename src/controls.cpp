@@ -13,24 +13,13 @@ bool Editor::RectClick(Vec2f pos, float w, float h) {
 	return RectHover(pos, w, h) && ImGui::IsMouseClicked(ImGuiMouseButton_Left);
 }
 
-void Editor::ScrollCallback(GLFWwindow* win, double xOffs, double yOffs) {
-	if (yOffs > 0.0f) {
-		camera.zoom += 0.1f;
-	}
-	else if (yOffs < 0.0f) {
-		camera.zoom -= 0.1f;
-
-		if (camera.zoom < 1.0f) camera.zoom = 1.0f;
-	}
-	
-}
-
 void Editor::UpdateCamera() {
 	Vec2f dimensions = GetWindowDimensions();
 
-
 	camera.w = static_cast<float>(dimensions.x);
 	camera.h = static_cast<float>(dimensions.y);
+
+	if (!(ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))) return;
 
 	// this part is just for the relatively hacky node dragging
 	if (ImGui::IsMouseDown(ImGuiMouseButton_Left)) return;
@@ -44,6 +33,17 @@ void Editor::UpdateCamera() {
 		camera.x = 0.0f;
 		camera.y = 0.0f;
 		camera.zoom = 1.0f;
+	}
+
+	ImGuiIO& io = ImGui::GetIO();
+
+	if (io.MouseWheel > 0.0f) {
+		camera.zoom += 0.1f;
+	}
+	else if (io.MouseWheel < 0.0f) {
+		camera.zoom -= 0.1f;
+
+		if (camera.zoom < 1.0f) camera.zoom = 1.0f;
 	}
 }
 

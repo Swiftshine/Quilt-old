@@ -8,10 +8,13 @@ Editor::Editor() {
 	open		= false;
 	saved		= false;
 	dockSetup	= false;
+	font = nullptr;
 
 	renderWalls = true;
+	renderActionPoints = true;
 	renderPaths = true;
 	renderGimmicks = true;
+	renderControllers = true;
 	renderEnemies = true;
 	renderGrid = false;
 
@@ -19,12 +22,18 @@ Editor::Editor() {
 
 	cachedParamName = "";
 
+	parameterXMLContents = "";
+	translationXMLContents = "";
+
 	selectedFileIndex = 0;
 }
 
 Editor::~Editor() {
 	ClearMapdata();
+	ClearNodes();
 	translations.clear();
+	commonGimmickNames.clear();
+	rawCommonGimmickNames.clear();
 }
 
 
@@ -45,7 +54,6 @@ bool Editor::Setup() {
 		return false;
 	}
 
-
 	// introduce window to current context
 	glfwMakeContextCurrent(window);
 
@@ -54,13 +62,16 @@ bool Editor::Setup() {
 	glViewport(0, 0, 800, 800);
 	glfwMaximizeWindow(window);
 
-	glfwSetScrollCallback(window, Editor::ScrollCallback);
-
 	// init ImGui
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	
+	// add default font
+	io.Fonts->AddFontDefault();
+	// add consolas
+	font = io.Fonts->AddFontFromFileTTF("res/font/Consolas.ttf", FONT_SIZE, NULL, io.Fonts->GetGlyphRangesDefault());
+
 	// using the docking branch
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
@@ -68,9 +79,7 @@ bool Editor::Setup() {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
-
-	
-
+	LoadTranslations();
 	LoadParameters();
 
 	running = true;
@@ -78,6 +87,7 @@ bool Editor::Setup() {
 }
 
 void Editor::Cleanup() {
+	
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
@@ -86,28 +96,34 @@ void Editor::Cleanup() {
 	glfwTerminate();
 }
 
-void Editor::Run() {
-	static bool first_time = true;
-	while (running && !glfwWindowShouldClose(window)) {
-		// editor
-		UpdateCamera();
+void Editor::ClearMapdata() {
+	walls.clear();
+	dataSegLabels.clear();
+	paths.clear();
+	controllers.clear();
+	for (auto line : lines) { line.clear(); }
+	lines.clear();
+	commonGimmicks.clear();
+	gimmicks.clear();
+	enemies.clear();
+	rawCommonGimmickNames.clear();
+}
 
+void Editor::Run() {
+	while (running && !glfwWindowShouldClose(window)) {
 		// rendering
 		glClearColor(0, 0, 0, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-
-
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		
+		if (font) ImGui::PushFont(font);
 
 		HandleMenu();
-
 		HandleTabs();
 
-		
+		if (font) ImGui::PopFont();
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -126,12 +142,11 @@ void Editor::SetupFile() {
 
 	std::string filename = folderPath + selectedFile + ".mapbin";
 	
-	open = true;
+	open = false;
 
-	gmkNodes.clear();
 	ClearSelectedNode();
-	ClearMapdata();
 	ClearNodes();
+	ClearMapdata();
 
 
 	std::fstream file(filename , std::ios::in | std::ios::binary);
@@ -151,6 +166,31 @@ void Editor::SetupFile() {
 		walls.push_back(entry);
 	}
 
+	/* common gimmick ENTRIES */
+	file.seekg(Swap32(mapHeader.commonGimmickOffset));
+
+	for (int i = 0; i < Swap32(mapHeader.commonGimmickCount); i++) {
+		Mapdata::Mapbin::CommonGimmick commonGimmick;
+		file.read((char*)&commonGimmick, sizeof(commonGimmick));
+		int index = Swap32(commonGimmick.nameIndex);
+
+		commonGimmicks.push_back(commonGimmick);
+
+		CmnGmkNode node;
+		node.Configure(&commonGimmick);
+		// each node's name will be setup later in this function
+		cmnGmkNodes.push_back(node);
+	}
+	
+
+	/* data seg labels */
+	file.seekg(Swap32(mapHeader.dataSegLabelOffset));
+	for (int i = 0; i < Swap32(mapHeader.dataSegLabelCount); i++) {
+		Mapdata::Mapbin::DataSegLabel dataSegLabel;
+		file.read((char*)&dataSegLabel, sizeof(dataSegLabel));
+		dataSegLabels.push_back(dataSegLabel);
+	}
+
 	/* gimmicks */
 	file.seekg(Swap32(mapHeader.gimmickOffset));
 	
@@ -164,7 +204,20 @@ void Editor::SetupFile() {
 		node.Configure(&gimmick);
 		gmkNodes.push_back(node);
 	}
+	
+	/* controllers */
+	file.seekg(Swap32(mapHeader.controllerOffset));
+	for (int i = 0; i < Swap32(mapHeader.controllerCount); i++) {
+		Mapdata::Mapbin::Controller controller;
+		file.read((char*)&controller, sizeof(controller));
+		if ("NONE" == std::string(controller.name)) continue;
+		controllers.push_back(controller);
 
+		ContNode node;
+		node.Configure(&controller);
+		contNodes.push_back(node);
+
+	}
 	/* paths */
 	file.seekg(Swap32(mapHeader.pathOffset));
 
@@ -181,6 +234,18 @@ void Editor::SetupFile() {
 
 		paths.push_back(path);
 		lines.push_back(line);
+	}
+
+	/* common gimmick NAMES */
+	file.seekg(Swap32(mapHeader.commonGimmickHeaderOffset));
+	// there isn't a real header, just a number and an array
+	u32 numCommonName;
+	file.read((char*)&numCommonName, 4);
+	for (int i = 0; i < Swap32(numCommonName); i++) {
+		char name[0x20];
+		file.read(name, 0x20);
+		std::string raw = name; // i call this 'raw' because it hasn't been translated yet
+		rawCommonGimmickNames.push_back(raw);
 	}
 
 	file.close();
@@ -207,10 +272,17 @@ void Editor::SetupFile() {
 		node.Configure(&enemy);
 		enNodes.push_back(node);
 	}
-
 	
-
 	file.close();
+
+	SetupCommonGimmickNames();
+
+	for (int i = 0; i < cmnGmkNodes.size(); i++) {
+		CmnGmkNode* node = &cmnGmkNodes[i];
+		node->name = commonGimmickNames[node->nameIndex];
+	}
+
+	open = true;
 }
 
 
@@ -231,6 +303,19 @@ void Editor::RenderFile() {
 		}
 	}
 
+	/* render data segs */
+	if (renderActionPoints) {
+		for (int i = 0; i < dataSegLabels.size(); i++) {
+			float x1 = SwapF32(dataSegLabels[i].point1.x) * camera.zoom + camera.x;
+			float y1 = camera.h - (SwapF32(dataSegLabels[i].point1.y) * camera.zoom) + camera.y;
+
+			float x2 = SwapF32(dataSegLabels[i].point2.x) * camera.zoom + camera.x;
+			float y2 = camera.h - (SwapF32(dataSegLabels[i].point2.y) * camera.zoom) + camera.y;
+
+			DrawLine(Vec2f(x1, y1), Vec2f(x2, y2), RGBA(0xFF0000FF));
+		}
+	}
+
 	/* render paths */
 	if (renderPaths) {
 		for (int i = 0; i < paths.size(); i++) {
@@ -244,15 +329,6 @@ void Editor::RenderFile() {
 			}
 		}
 	}
-}
-
-void Editor::ClearMapdata() {
-	walls.clear();
-	paths.clear();
-	for (auto line : lines) { line.clear(); }
-	lines.clear();
-	gimmicks.clear();
-	enemies.clear();
 }
 
 void Editor::UpdateNodes() {
@@ -269,6 +345,24 @@ void Editor::UpdateNodes() {
 	if (renderEnemies) {
 		for (int i = 0; i < enNodes.size(); i++) {
 			EnNode* node = &enNodes[i];
+			node->Update();
+			if (node->RectClick()) SetSelectedNode(node);
+		}
+	}
+
+	/* controller nodes */
+	if (renderControllers) {
+		for (int i = 0; i < contNodes.size(); i++) {
+			ContNode* node = &contNodes[i];
+			node->Update();
+			if (node->RectClick()) SetSelectedNode(node);
+		}
+	}
+
+	/* common gimmick nodes */
+	if (renderGimmicks) {
+		for (int i = 0; i < cmnGmkNodes.size(); i++) {
+			CmnGmkNode* node = &cmnGmkNodes[i];
 			node->Update();
 			if (node->RectClick()) SetSelectedNode(node);
 		}
@@ -295,66 +389,281 @@ NodeBase* Editor::GetSelectedNode() { return selectedNode;  }
 void Editor::ClearNodes() {
 	gmkNodes.clear();
 	enNodes.clear();
+	contNodes.clear();
+	cmnGmkNodes.clear();
 }
 
-// void Editor::SaveFile() {
-// 
-// }
+void Editor::SaveFile() {
+
+}
 
 void Editor::LoadParameters() {
-	if (gimmickParameterXMLContents.empty()) {
-
-		std::ifstream file("res/gimmick_parameter.xml");
+	if (parameterXMLContents.empty()) {
+		// read file into string
+		std::ifstream file("res/parameters.xml");
+		if (!file.is_open()) {
+			printf("Error - failed to load parameters.xml!\n");
+			return;
+		}
 		std::stringstream buf;
 		buf << file.rdbuf();
 		file.close();
-		gimmickParameterXMLContents = buf.str();
+		parameterXMLContents = buf.str();
 
 		gmkParams.clear();
-		translations.clear();
+		contParams.clear();
 		cachedParamName.clear();
 	}
 
 	try {
 		// parse XML
 		rapidxml::xml_document<> doc;
-		doc.parse<0>(&gimmickParameterXMLContents[0]);
+		doc.parse<0>(&parameterXMLContents[0]);
 
-		// get root
-		rapidxml::xml_node<>* root = doc.first_node("gimmicks");
+		// get root node
+		rapidxml::xml_node<>* root = doc.first_node("root");
+		if (!root) {
+			printf("Error - root node 'root' not found!\n");
+			return;
+		}
 
-		// iterate over gimmick nodes
-		for (rapidxml::xml_node<>* gimmick_xml_node = root->first_node("gimmick"); gimmick_xml_node; gimmick_xml_node = gimmick_xml_node->next_sibling("gimmick")) {
-			std::string gimmick_name = gimmick_xml_node->first_node("name")->value();
+		// load gimmicks
+		rapidxml::xml_node<>* gimmicks_node = root->first_node("gimmicks");
+		if (gimmicks_node) {
+			for (rapidxml::xml_node<>* gimmick_node = gimmicks_node->first_node("gimmick"); gimmick_node; gimmick_node = gimmick_node->next_sibling("gimmick")) {
+				std::string gimmick_name = gimmick_node->first_node("name")->value();
+				std::vector<GmkParamInfo> params;
 
-			std::vector<GmkParamInfo> params;
-
-			// iterate through parameters in the xml
-			
-			rapidxml::xml_node<>* parameters_node = gimmick_xml_node->first_node("parameters");
-			
-			if (parameters_node) {
-				for (rapidxml::xml_node<>* parameter_node = gimmick_xml_node->first_node("parameters")->first_node("parameter"); parameter_node; parameter_node = parameter_node->next_sibling("parameter")) {
-					GmkParamInfo info;
-					info.title = parameter_node->first_node("title")->value();
-					info.data_type = parameter_node->first_node("data_type")->value();
-					info.slot = std::stoi(parameter_node->first_node("slot")->value());
-					info.description = parameter_node->first_node("description")->value();
-
-					params.push_back(info);
+				rapidxml::xml_node<>* parameters_node = gimmick_node->first_node("parameters");
+				if (parameters_node) {
+					for (rapidxml::xml_node<>* parameter_node = parameters_node->first_node("parameter"); parameter_node; parameter_node = parameter_node->next_sibling("parameter")) {
+						GmkParamInfo info;
+						info.title = parameter_node->first_node("title")->value();
+						info.data_type = parameter_node->first_node("data_type")->value();
+						info.slot = std::stoi(parameter_node->first_node("slot")->value());
+						info.description = parameter_node->first_node("description")->value();
+						params.push_back(info);
+					}
 				}
+				gmkParams.emplace_back(gimmick_name, params);
 			}
+		}
 
-			gmkParams.emplace_back(gimmick_name, params);
+		// load controllers
+		rapidxml::xml_node<>* controllers_node = root->first_node("controllers");
+		if (controllers_node) {
+			for (rapidxml::xml_node<>* controller_node = controllers_node->first_node("controller"); controller_node; controller_node = controller_node->next_sibling("controller")) {
+				std::string controller_name = controller_node->first_node("name")->value();
+				std::vector<GmkParamInfo> params;
+
+				rapidxml::xml_node<>* parameters_node = controller_node->first_node("parameters");
+				if (parameters_node) {
+					for (rapidxml::xml_node<>* parameter_node = parameters_node->first_node("parameter"); parameter_node; parameter_node = parameter_node->next_sibling("parameter")) {
+						GmkParamInfo info;
+						info.title = parameter_node->first_node("title")->value();
+						info.data_type = parameter_node->first_node("data_type")->value();
+						info.slot = std::stoi(parameter_node->first_node("slot")->value());
+						info.description = parameter_node->first_node("description")->value();
+						params.push_back(info);
+					}
+				}
+				contParams.emplace_back(controller_name, params);
+			}
+		}
+
+		// load common gimmicks
+		rapidxml::xml_node<>* common_gimmicks_node = root->first_node("common_gimmicks");
+		if (common_gimmicks_node) {
+			for (rapidxml::xml_node<>* common_gimmick_node = common_gimmicks_node->first_node("common_gimmick"); common_gimmick_node; common_gimmick_node = common_gimmick_node->next_sibling("common_gimmick")) {
+				std::string quilt_identifier = common_gimmick_node->first_node("quilt_identifier")->value();
+				if (!GetTranslationByQID(quilt_identifier)) {
+					printf("Warning: Quilt ID '%s' not found in translations.xml. Skipping...\n", quilt_identifier.c_str());
+					continue;
+				}
+
+				std::vector<CmnGmkParamInfo> params;
+
+				rapidxml::xml_node<>* parameters_node = common_gimmick_node->first_node("parameters");
+				if (parameters_node) {
+					for (rapidxml::xml_node<>* parameter_node = parameters_node->first_node("parameter"); parameter_node; parameter_node = parameter_node->next_sibling("parameter")) {
+						CmnGmkParamInfo info;
+						info.quilt_identifier = quilt_identifier;
+						info.title = parameter_node->first_node("title")->value();
+						info.data_type = parameter_node->first_node("data_type")->value();
+						info.slot = std::stoi(parameter_node->first_node("slot")->value());
+						info.description = parameter_node->first_node("description")->value();
+						params.push_back(info);
+					}
+				}
+				cmnGmkParams.emplace_back(quilt_identifier, params);
+			}
 		}
 	}
 	catch (const std::exception& e) {
-		printf("Error loading gimmick parameters: %s\n", e.what());
+		printf("Error loading parameters: %s\n", e.what());
 		return;
 	}
 }
 
+
 void Editor::ReloadParameters() {
-	gimmickParameterXMLContents.clear();
+	parameterXMLContents.clear();
 	LoadParameters();
+}
+
+void Editor::LoadTranslations() {
+	if (translationXMLContents.empty()) {
+		// read file into string
+		std::ifstream file("res/translations.xml");
+		if (!file.is_open()) {
+			printf("Error - failed to load translations.xml!\n");
+			return;
+		}
+
+		std::stringstream buf;
+		buf << file.rdbuf();
+		file.close();
+		translationXMLContents = buf.str();
+
+		translations.clear();
+	}
+
+	try {
+		// parse xml
+		rapidxml::xml_document<> doc;
+		doc.parse<0>(&translationXMLContents[0]);
+		
+		// get root node
+		rapidxml::xml_node<>* root = doc.first_node("root");
+		if (!root) {
+			printf("Error - root node 'root' not found!\n");
+			return;
+		}
+
+		// load translations
+		for (rapidxml::xml_node<>* translation_node = root->first_node("translation"); translation_node; translation_node = translation_node->next_sibling("translation")) {
+			Translation translation;
+
+			translation.shift_jis_bytes = translation_node->first_node("shift_jis_bytes")->value();
+			if (translation.shift_jis_bytes.empty()) continue;
+			std::string::iterator end_pos = std::remove(translation.shift_jis_bytes.begin(), translation.shift_jis_bytes.end(), ' ');
+			translation.shift_jis_bytes.erase(end_pos, translation.shift_jis_bytes.end());
+			if (GetTranslationByHex(translation.shift_jis_bytes)) continue;
+			translation.english_string = translation_node->first_node("english_string")->value();
+			translation.quilt_identifier = translation_node->first_node("quilt_identifier")->value();
+
+			translations[translation.shift_jis_bytes] = translation;
+		}
+
+	}
+	catch (const std::exception& e) {
+		printf("Error loading translations: %s\n", e.what());
+		return;
+	}
+}
+
+void Editor::ReloadTranslations() {
+	translationXMLContents.clear();
+	LoadTranslations();
+	SetupCommonGimmickNames();
+
+	for (int i = 0; i < cmnGmkNodes.size(); i++) {
+		CmnGmkNode* node = &cmnGmkNodes[i];
+		node->name = commonGimmickNames[node->nameIndex];
+	}
+}
+
+Translation* Editor::GetTranslationByHex(std::string hex) {
+	Translation* result = nullptr;
+	
+	auto it = translations.find(hex);
+	if (it != translations.end()) {
+		result = &it->second;
+	}
+
+	return result;
+}
+
+Translation* Editor::GetTranslationByQID(std::string qid) {
+	for (auto& pair : translations) {
+		if (pair.second.quilt_identifier == qid) {
+			return &pair.second;
+		}
+	}
+	return nullptr;
+}
+
+std::string Editor::GetQIDByName(const std::string& name) {
+	std::string search_name = name;
+
+	if ("0x" == name.substr(0, 2)) search_name = name.substr(2);
+
+	for (const auto& pair : translations) {
+		const Translation& translation = pair.second;
+
+		if (pair.first == search_name || translation.english_string == search_name) {
+			return translation.quilt_identifier;
+		}
+
+	}
+
+	return "";
+}
+
+std::vector<char> Editor::HexToBytes(std::string hex) {
+	std::vector<char> bytes;
+
+	for (auto i = 0; i < hex.length(); i++) {
+		std::string byteString = hex.substr(i, 2);
+		char byte = (char)strtol(byteString.c_str(), NULL, 16);
+		bytes.push_back(byte);
+	}
+
+	return bytes;
+}
+
+std::string Editor::BytesToHex(char* bytes, size_t len) {
+	std::stringstream hexStream;
+
+	for (auto i = 0; i < len; i++) {
+		hexStream << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (static_cast<unsigned int>(bytes[i]) & 0xFF);
+	}
+
+	return hexStream.str();
+}
+
+
+void Editor::SetupCommonGimmickNames() {
+	commonGimmickNames.clear();
+	// i'm using an unordered set here because
+	// the original string order MUST be preserved
+	std::unordered_set<std::string> unique_names;
+
+	for (const auto& common : commonGimmicks) {
+		// get translation for the current common gimmick
+		int index = Swap32(common.nameIndex);
+		int count = rawCommonGimmickNames.size();
+
+		if (index < 0 || index >= count) continue;
+
+		std::string raw = rawCommonGimmickNames[index];
+		std::string hex = BytesToHex(raw.data(), raw.length());
+		Translation* translation = GetTranslationByHex(hex);
+
+		std::string name;
+		// check if there's a translation entry AND an english translation
+		if (translation && !translation->english_string.empty()) {
+			name = translation->english_string;
+		}
+		else {
+			// just display the raw bytes
+			name = "0x" + hex;
+		}
+
+		// add name to the vector if it is unique
+		if (unique_names.find(name) == unique_names.end()) {
+			unique_names.insert(name);
+			commonGimmickNames.push_back(name);
+		}
+	}
 }

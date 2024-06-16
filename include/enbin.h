@@ -17,7 +17,7 @@ namespace Enbin {
     struct EnemyEntry {
         char name[0x20];
         char behavior[0x20];
-        char _40[0x20];
+        char pathName[0x20];
         char beadType[0x10];
         char beadColor[0x10];
         char direction[0x10];

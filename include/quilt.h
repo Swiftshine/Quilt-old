@@ -6,15 +6,18 @@ const float SQUARE_SIZE = 8.0f;
 const int MAX_SLOTS = 3;
 const float GRID_CELL_SIZE = 4.0f;
 
+#include <algorithm>
 #include <cstring>
 #include <cstdio>
 #include <cstdint>
 #include <fstream>
 #include <string>
 #include <vector>
-#include <map>
 #include <set>
+#include <unordered_set>
+#include <unordered_map>
 #include <sstream>
+#include <iomanip>
 
 #include <rapidxml.hpp>
 
@@ -80,6 +83,7 @@ static double SwapF64(double value) {
 
 /* editor */
 
+const float FONT_SIZE = 13.0f;
 
 class Editor {
 public:
@@ -95,6 +99,9 @@ public:
     Vec2f GetWindowDimensions();
     GLFWwindow* GetGLFWWindow();
 
+    static std::vector<char> HexToBytes(std::string hex);
+    static std::string BytesToHex(char* bytes, size_t len);
+
     static void DrawLine(Vec2f p1, Vec2f p2, RGBA col);
     static void DrawLine(Vec2f p1, Vec2f p2, u32 col);
     static void DrawRect(Vec2f pos, float w, float h, RGBA col);
@@ -107,28 +114,35 @@ public:
     static bool RectHover(Vec2f pos, float w, float h);
     static bool RectClick(Vec2f pos, float w, float h);
 
-    static void ScrollCallback(GLFWwindow* win, double xOffs, double yOffs);
-
 private:
     void UpdateCamera();
     void UpdateNodes();
 
     void SetupFile();
-    //void SaveFile();
+    void SaveFile();
 
     void LoadParameters();
     void ReloadParameters();
+    void LoadTranslations();
+    void ReloadTranslations();
+    void SetupCommonGimmickNames();
 
+    Translation* GetTranslationByHex(std::string hex);
+    Translation* GetTranslationByQID(std::string qid); // QID -> Quilt IDentifier
+    std::string  GetQIDByName(const std::string& name);
     void RenderFile();
     void RenderGrid();
 
     void HandleMenu();
     void HandleTabs();
     void HandleFileDropdown();
+    void HandleCommonGimmickList();
     void HandleViewport();
     void HandleSettings();
     void HandleParameters();
+    void HandleCommonGimmickParameters();
     void HandleGimmickParameters();
+    void HandleControllerParameters();
     void HandleEnemyParameters();
     void ClearMapdata();
     void ClearNodes();
@@ -139,6 +153,7 @@ private:
     GLFWwindow* window;
     bool        running;
     bool        dockSetup;
+    ImFont*     font;
     std::string folderPath;
     std::string folderName;
 
@@ -150,26 +165,40 @@ private:
 
     std::vector<GmkNode> gmkNodes;
     std::vector<EnNode> enNodes;
+    std::vector<ContNode> contNodes;
+    std::vector<CmnGmkNode> cmnGmkNodes;
 
     NodeBase* selectedNode;
 
 
     std::vector<Colbin::Entry> walls;
+    std::vector<Mapdata::Mapbin::CommonGimmick> commonGimmicks;
+    std::vector<Mapdata::Mapbin::DataSegLabel> dataSegLabels;
     std::vector<Mapdata::Mapbin::Path> paths;
     std::vector<std::vector<Vec2f>> lines;
     std::vector<Mapdata::Mapbin::Gimmick> gimmicks;
     std::vector<Mapdata::Enbin::EnemyEntry> enemies;
+    std::vector<Mapdata::Mapbin::Controller> controllers;
     
+    std::vector<std::string> rawCommonGimmickNames;
+    std::vector<std::string> commonGimmickNames;
+
     bool renderWalls;
+    bool renderActionPoints;
     bool renderGimmicks;
+    bool renderControllers;
     bool renderPaths;
     bool renderEnemies;
     bool renderGrid;
 
-    std::string gimmickParameterXMLContents;
+    std::string parameterXMLContents;
+    std::string translationXMLContents;
 
     std::string cachedParamName;
 
     std::vector<std::pair<std::string, std::vector<GmkParamInfo>>> gmkParams;
-    std::vector<std::pair<std::string, Translation>> translations;
+    std::vector<std::pair<std::string, std::vector<GmkParamInfo>>> contParams;
+    std::vector<std::pair<std::string, std::vector<CmnGmkParamInfo>>> cmnGmkParams;
+
+    std::unordered_map<std::string, Translation> translations;
 };

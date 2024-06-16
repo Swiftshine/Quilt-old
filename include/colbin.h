@@ -23,6 +23,6 @@ namespace Colbin {
         u32 numCollisionTypes;
         /* present is a Colbin::Descriptor[numCollisionTypes] */
 
-        /* padding until next multiple of 0x10 (0x20?)*/
+        /* padding until next multiple of 0x20 */
     };
 };

@@ -24,6 +24,8 @@ void Editor::SetupDocking() {
 
     ImGui::DockBuilderDockWindow("Viewport", dock_MainID);
     ImGui::DockBuilderDockWindow("Gimmick Parameters", dock_RightID);
+    ImGui::DockBuilderDockWindow("Common Gimmick Parameters", dock_RightID);
+    ImGui::DockBuilderDockWindow("Controller Parameters", dock_RightID);
     ImGui::DockBuilderDockWindow("Enemy Parameters", dock_RightID);
     ImGui::DockBuilderFinish(dockspaceID);
 }
@@ -53,6 +55,7 @@ void Editor::HandleTabs() {
 
 void Editor::HandleViewport() {
     if (ImGui::BeginTabItem("Editor")) {
+        
         if (!open) {
             ImGui::EndTabItem();
             return;
@@ -68,7 +71,9 @@ void Editor::HandleViewport() {
         ImGui::DockSpace(dockspace_id);
 
         if (ImGui::Begin("Viewport")) {
+            UpdateCamera();
             HandleFileDropdown();
+            HandleCommonGimmickList();
             RenderGrid();
             RenderFile();
             HandleParameters();
@@ -106,6 +111,20 @@ void Editor::HandleFileDropdown() {
     ImGui::End();
 }
 
+void Editor::HandleCommonGimmickList() {
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
+    ImGui::SetNextWindowPos(ImVec2(320, 100));
+    ImGui::SetNextWindowSize(ImVec2(500, 200));
+    ImGui::Begin("Common Gimmick List", nullptr, flags);
+
+    for (auto const& name : commonGimmickNames) {
+        ImGui::Text(name.c_str());
+    }
+
+    ImGui::End();
+}
+
+
 void Editor::HandleSettings() {
     if (ImGui::BeginTabItem("Settings")) {
 
@@ -113,6 +132,9 @@ void Editor::HandleSettings() {
 
         b = renderWalls;
         if (ImGui::Checkbox("Render Walls", &b)) renderWalls = b;
+
+        b = renderActionPoints;
+        if (ImGui::Checkbox("Render Action Points", &b)) renderActionPoints = b;
 
         b = renderGimmicks;
         if (ImGui::Checkbox("Render Gimmicks", &b)) renderGimmicks = b;
@@ -136,20 +158,22 @@ void Editor::HandleParameters() {
         return;
     }
 
-
     switch (GetSelectedNode()->nodeType) {
+        case NodeBase::NodeType_CommonGimmick:
+            HandleCommonGimmickParameters(); break;
         case NodeBase::NodeType_Gimmick:
             HandleGimmickParameters(); break;
         case NodeBase::NodeType_Enemy:
             HandleEnemyParameters(); break;
+        case NodeBase::NodeType_Controller:
+            HandleControllerParameters(); break;
     }
 }
 
 void Editor::HandleGimmickParameters() {
     GmkNode* node = static_cast<GmkNode*>(GetSelectedNode());
 
-    std::string title = "Gimmick Parameters";
-    ImGui::Begin(title.c_str());
+    ImGui::Begin("Gimmick Parameters");
     
     ImGui::InputText("Name", node->name.data(), 0x20);
     ImGui::InputFloat("X Position", &node->position.x, 0.1f, 1.f);
@@ -168,7 +192,7 @@ void Editor::HandleGimmickParameters() {
                 int val = Swap32(node->params.ints[info.slot]);
 
                 ImGui::InputInt(info.title.c_str(), &val, 1, 10);
-                if (ImGui::IsItemHovered()) {
+                if (ImGui::IsItemHovered() && !info.description.empty()) {
                     Editor::DrawTooltip(info.description);
                 }
             }
@@ -176,17 +200,115 @@ void Editor::HandleGimmickParameters() {
                 float val = SwapF32(node->params.floats[info.slot]);
 
                 ImGui::InputFloat(info.title.c_str(), &val, 0.1f, 1.0f);
-                if (ImGui::IsItemHovered()) {
+                if (ImGui::IsItemHovered() && !info.description.empty()) {
+                    Editor::DrawTooltip(info.description);
+                }
+            }
+            else if ("string" == info.data_type) {
+                ImGui::InputText(info.title.c_str(), node->params.strings[info.slot], 64);
+                if (ImGui::IsItemHovered() && !info.description.empty()) {
                     Editor::DrawTooltip(info.description);
                 }
             }
         }
-        
+    }
+    ImGui::End();
+}
+
+void Editor::HandleCommonGimmickParameters() {
+    CmnGmkNode* node = static_cast<CmnGmkNode*>(GetSelectedNode());
+    ImGui::Begin("Common Gimmick Parameters");
+    
+    ImGui::InputText("Name", node->name.data(), 0x20);
+    if (ImGui::IsItemHovered()) {
+        Editor::DrawTooltip(node->name);
+    }
+    ImGui::InputFloat("X Position", &node->position.x, 0.1f, 1.f);
+    ImGui::InputFloat("Y Position", &node->position.y, 0.1f, 1.0f);
+
+    // instead of using a normal name (because we can't),
+    // we'll use the quilt id
+
+    std::string qid = GetQIDByName(node->name);
+
+    cachedParamName = qid;
+    if (cachedParamName.empty()) {
+        ImGui::End();
+        return;
     }
 
+    std::string workingName = node->name;
+    if ("0x" == workingName.substr(0, 2)) workingName = workingName.substr(2);
+
+    for (auto& pair : cmnGmkParams) {
+        if (pair.first != qid) continue;
+
+        for (auto& info : pair.second) {
+            // double-check qid
+            if (info.quilt_identifier != qid) continue;
+
+            // at the moment, we can't take a lot of parameters (such as slot)
+            // into account because that part of the format
+            // is still unknown
+
+            if ("string" == info.data_type) {
+                ImGui::InputText(info.title.c_str(), node->params.string1, 0x20);
+                if (ImGui::IsItemHovered() && !info.description.empty()) {
+                    Editor::DrawTooltip(info.description);
+                }
+            }
+        }
+    }
 
     ImGui::End();
 }
+
+
+void Editor::HandleControllerParameters() {
+    ContNode* node = static_cast<ContNode*>(GetSelectedNode());
+
+    ImGui::Begin("Controller Parameters");
+
+    ImGui::InputText("Name", node->name.data(), 0x20);
+    ImGui::InputFloat("X Position", &node->position.x, 0.1f, 1.f);
+    ImGui::InputFloat("Y Position", &node->position.y, 0.1f, 1.0f);
+
+    cachedParamName = node->name;
+
+    for (auto& [controller_name, params] : contParams) {
+        if (controller_name != node->name) continue;
+
+        for (auto& info : params) {
+            // slot needs to be valid
+            if (info.slot >= MAX_SLOTS || info.slot < 0) continue;
+
+            if ("int" == info.data_type) {
+                int val = Swap32(node->params.ints[info.slot]);
+
+                ImGui::InputInt(info.title.c_str(), &val, 1, 10);
+                if (ImGui::IsItemHovered() && !info.description.empty()) {
+                    Editor::DrawTooltip(info.description);
+                }
+            }
+            else if ("float" == info.data_type) {
+                float val = SwapF32(node->params.floats[info.slot]);
+
+                ImGui::InputFloat(info.title.c_str(), &val, 0.1f, 1.0f);
+                if (ImGui::IsItemHovered() && !info.description.empty()) {
+                    Editor::DrawTooltip(info.description);
+                }
+            }
+            else if ("string" == info.data_type) {
+                ImGui::InputText(info.title.c_str(), node->params.strings[info.slot], 64);
+                if (ImGui::IsItemHovered() && !info.description.empty()) {
+                    Editor::DrawTooltip(info.description);
+                }
+            }
+        }
+    }
+    ImGui::End();
+}
+
 
 void Editor::HandleEnemyParameters() {
     EnNode* node = static_cast<EnNode*>(GetSelectedNode());
@@ -195,7 +317,7 @@ void Editor::HandleEnemyParameters() {
     ImGui::InputFloat("X Position", &node->position.x, 0.1f, 1.f);
     ImGui::InputFloat("Y Position", &node->position.y, 0.1f, 1.0f);
     ImGui::InputText("Behavior", node->behavior.data(), 0x20);
-    ImGui::InputText("Target",    node->unk1.data(), 0x20);
+    ImGui::InputText("Path Name",    node->pathName.data(), 0x20);
     ImGui::InputText("Bead Type",    node->beadType.data(), 0x20);
     ImGui::InputText("Bead Color",    node->beadColor.data(), 0x20);
     ImGui::InputText("Direction",    node->direction.data(), 0x20);
@@ -258,11 +380,15 @@ void Editor::HandleMenu() {
         }
 
         if (ImGui::MenuItem("Save")) {
-            //SaveFile();
+            SaveFile();
         }
 
         if (ImGui::MenuItem("Reload Parameters")) {
             ReloadParameters();
+        }
+
+        if (ImGui::MenuItem("Reload Translations")) {
+            ReloadTranslations();
         }
 
         ImGui::EndMenu();
