@@ -156,7 +156,7 @@
         <parameters>
             <parameter>
                 <title>Model Resource</title>
-                <data_type>string</title>
+                <data_type>string</data_type>
                 <slot>0</slot>
                 <description>The name of the Good-Feel Archive this gimmick references. Do not add the .gfa extension.</description>
             </parameter>
@@ -167,22 +167,51 @@
         <parameters>
             <parameter>
                 <title>Enemy Type</title>
-                <data_type>string</title>
+                <data_type>string</data_type>
                 <slot>0</slot>
                 <description>The name of the enemy being generated.</description>
             </parameter>
         </parameters>
     </common_gimmick>
-    <common_gimmick>
+   <common_gimmick>
         <quilt_identifier>CLOTH_TURN_COMMON</quilt_identifier>
         <parameters>
             <parameter>
-                <title>Uncover target</title>
-                <data_type>string</title>
+                <title>Texture</title>
+                <data_type>dropdown_int</data_type>
                 <slot>0</slot>
+                <description>The texture this cloth will use. 0 - square, 1 - door, 2 - chest, 3 - swirl, 4 - box</description>
+                <options>
+                    <option>
+                        <value>0</value>
+                        <label>Square</label>
+                    </option>
+                    <option>
+                        <value>1</value>
+                        <label>Door</label>
+                    </option>
+                    <option>
+                        <value>2</value>
+                        <label>Chest</label>
+                    </option>
+                    <option>
+                        <value>3</value>
+                        <label>Swirl</label>
+                    </option>
+                    <option>
+                        <value>4</value>
+                        <label>Box</label>
+                    </option>
+                </options>
+            </parameter>
+            <parameter>
+                <title>Uncover target</title>
+                <data_type>string</data_type>
+                <slot>1</slot>
                 <description>A link code that identifies what this cloth will uncover.</description>
             </parameter>
         </parameters>
     </common_gimmick>
+
 </common_gimmicks>
 </root>

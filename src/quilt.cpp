@@ -412,6 +412,7 @@ void Editor::LoadParameters() {
 
 		gmkParams.clear();
 		contParams.clear();
+		cmnGmkParams.clear();
 		cachedParamName.clear();
 	}
 
@@ -442,6 +443,17 @@ void Editor::LoadParameters() {
 						info.data_type = parameter_node->first_node("data_type")->value();
 						info.slot = std::stoi(parameter_node->first_node("slot")->value());
 						info.description = parameter_node->first_node("description")->value();
+
+						if ("dropdown_int" == info.data_type) {
+							rapidxml::xml_node<>* options_node = parameter_node->first_node("options");
+							if (options_node) {
+								for (rapidxml::xml_node<>* option_node = options_node->first_node("option"); option_node; option_node = option_node->next_sibling("option")) {
+									int value = std::stoi(option_node->first_node("value")->value());
+									std::string label = option_node->first_node("label")->value();
+									info.dropdown_options.emplace_back(value, label);
+								}
+							}
+						}
 						params.push_back(info);
 					}
 				}
@@ -464,6 +476,18 @@ void Editor::LoadParameters() {
 						info.data_type = parameter_node->first_node("data_type")->value();
 						info.slot = std::stoi(parameter_node->first_node("slot")->value());
 						info.description = parameter_node->first_node("description")->value();
+
+						if ("dropdown_int" == info.data_type) {
+							rapidxml::xml_node<>* options_node = parameter_node->first_node("options");
+							if (options_node) {
+								for (rapidxml::xml_node<>* option_node = options_node->first_node("option"); option_node; option_node = option_node->next_sibling("option")) {
+									int value = std::stoi(option_node->first_node("value")->value());
+									std::string label = option_node->first_node("label")->value();
+									info.dropdown_options.emplace_back(value, label);
+								}
+							}
+						}
+
 						params.push_back(info);
 					}
 				}
@@ -492,6 +516,18 @@ void Editor::LoadParameters() {
 						info.data_type = parameter_node->first_node("data_type")->value();
 						info.slot = std::stoi(parameter_node->first_node("slot")->value());
 						info.description = parameter_node->first_node("description")->value();
+
+						if ("dropdown_int" == info.data_type) {
+							rapidxml::xml_node<>* options_node = parameter_node->first_node("options");
+							if (options_node) {
+								for (rapidxml::xml_node<>* option_node = options_node->first_node("option"); option_node; option_node = option_node->next_sibling("option")) {
+									int value = std::stoi(option_node->first_node("value")->value());
+									std::string label = option_node->first_node("label")->value();
+									info.dropdown_options.emplace_back(value, label);
+								}
+							}
+						}
+
 						params.push_back(info);
 					}
 				}

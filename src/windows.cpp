@@ -195,6 +195,8 @@ void Editor::HandleGimmickParameters() {
                 if (ImGui::IsItemHovered() && !info.description.empty()) {
                     Editor::DrawTooltip(info.description);
                 }
+
+                node->params.ints[info.slot] = Swap32(val);
             }
             else if ("float" == info.data_type) {
                 float val = SwapF32(node->params.floats[info.slot]);
@@ -203,6 +205,8 @@ void Editor::HandleGimmickParameters() {
                 if (ImGui::IsItemHovered() && !info.description.empty()) {
                     Editor::DrawTooltip(info.description);
                 }
+
+                node->params.ints[info.slot] = SwapF32(val);
             }
             else if ("string" == info.data_type) {
                 ImGui::InputText(info.title.c_str(), node->params.strings[info.slot], 64);
@@ -250,12 +254,52 @@ void Editor::HandleCommonGimmickParameters() {
             // at the moment, we can't take a lot of parameters (such as slot)
             // into account because that part of the format
             // is still unknown
+            if ("int" == info.data_type) {
+                int val = Swap32(node->params.ints2[info.slot]);
 
-            if ("string" == info.data_type) {
+                ImGui::InputInt(info.title.c_str(), &val, 1, 10);
+                if (ImGui::IsItemHovered() && !info.description.empty()) {
+                    Editor::DrawTooltip(info.description);
+                }
+
+                node->params.ints2[info.slot] = Swap32(val);
+            }
+            else if ("string" == info.data_type) {
                 ImGui::InputText(info.title.c_str(), node->params.string1, 0x20);
                 if (ImGui::IsItemHovered() && !info.description.empty()) {
                     Editor::DrawTooltip(info.description);
                 }
+            }
+            else if ("dropdown_int" == info.data_type) {
+                const char* current_item = nullptr;
+
+                for (const auto& pair : info.dropdown_options) {
+
+                    if (Swap32(node->params.ints2[info.slot]) == pair.first) {
+                        current_item = pair.second.c_str();
+                        break;
+                    }
+                }
+
+                if (ImGui::BeginCombo(info.title.c_str(), current_item)) {
+                    for (const auto& pair : info.dropdown_options) {
+                        bool selected = Swap32(node->params.ints1[info.slot]) == pair.first;
+                        if (ImGui::Selectable(pair.second.c_str(), selected)) {
+                            node->params.ints1[info.slot] = Swap32(pair.first);
+                        }
+
+                        if (selected) ImGui::SetItemDefaultFocus();
+                    }
+
+
+                    ImGui::EndCombo();
+
+                    if (ImGui::IsItemHovered() && !info.description.empty()) {
+                        Editor::DrawTooltip(info.description);
+                    }
+                }
+
+
             }
         }
     }

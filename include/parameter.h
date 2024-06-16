@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 struct Translation {
 	std::string quilt_identifier;
@@ -14,6 +15,7 @@ struct GmkParamInfo {
 	std::string data_type;
 	int slot;
 	std::string description;
+	std::vector<std::pair<int, std::string>> dropdown_options;
 };
 
 struct CmnGmkParamInfo {
@@ -23,4 +25,5 @@ struct CmnGmkParamInfo {
 	std::string data_type;
 	int slot;
 	std::string description;
+	std::vector<std::pair<int, std::string>> dropdown_options;
 };
