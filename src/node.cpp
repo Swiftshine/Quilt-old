@@ -98,7 +98,7 @@ void GmkNode::Configure(Mapdata::Mapbin::Gimmick* gimmick) {
 	EnableDragging();
 
 	position = Vec2f(SwapF32(gimmick->position.x), SwapF32(gimmick->position.y));
-
+	std::memcpy(this->_30, gimmick->_30, 0x10);
 	float drawX = SwapF32(gimmick->position.x) * camera.zoom + camera.x;
 	float drawY = camera.h - (SwapF32(gimmick->position.y) * camera.zoom) + camera.y;
 
@@ -128,7 +128,7 @@ void CmnGmkNode::Configure(Mapdata::Mapbin::CommonGimmick* cmnGmk) {
 	float drawX = SwapF32(cmnGmk->position.x) * camera.zoom + camera.x;
 	float drawY = camera.h - (SwapF32(cmnGmk->position.y) * camera.zoom) + camera.y;
 	
-	size = Vec2f(SQUARE_SIZE / 2, SQUARE_SIZE / 2);
+	size = Vec2f(SQUARE_SIZE, SQUARE_SIZE);
 	drawY -= size.y;
 	drawPosition = Vec2f(drawX, drawY);
 }

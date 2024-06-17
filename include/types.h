@@ -11,6 +11,7 @@ using s64 = int64_t;
 using s32 = int32_t;
 using s16 = int16_t;
 using s8 =  int8_t;
+
 struct Vec2f {
     Vec2f() { x = 0; y = 0; }
     Vec2f(float nX, float nY) { x = nX; y = nY; }
@@ -65,4 +66,10 @@ const RGBA ENEMY_COLOR = RGBA(0xFFFF557F);
 const RGBA ENEMY_COLOR_SELECT = RGBA(0xFFFF55FF);
 const RGBA COMMON_GIMMICK_COLOR = RGBA(0xF564167F);
 const RGBA COMMON_GIMMICK_COLOR_SELECT = RGBA(0xF56416FF);
+
+const RGBA LINE_HEAD_COLOR = RGBA(0x00A7E1A0);
+const RGBA LINE_HEAD_COLOR_SELECT = RGBA(0x00A7E1FF);
+const RGBA LINE_SUB_COLOR = RGBA(0xB79CEDA0);
+const RGBA LINE_SUB_COLOR_SELECT = RGBA(0xB79CEDFF);
+
 struct Vec3f { float x; float y; float z; };

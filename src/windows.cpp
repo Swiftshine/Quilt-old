@@ -248,9 +248,6 @@ void Editor::HandleCommonGimmickParameters() {
         return;
     }
 
-    std::string workingName = node->name;
-    if ("0x" == workingName.substr(0, 2)) workingName = workingName.substr(2);
-
     for (auto& pair : cmnGmkParams) {
         if (pair.first != qid) continue;
 

@@ -2,7 +2,7 @@
 
 
 const int CIRCLE_SEGMENT_COUNT = 32;
-const float SQUARE_SIZE = 8.0f;
+const float SQUARE_SIZE = 4.0f;
 const int MAX_SLOTS = 3;
 const float GRID_CELL_SIZE = 4.0f;
 
@@ -157,6 +157,9 @@ private:
     std::string folderPath;
     std::string folderName;
 
+    Mapdata::Mapbin::Header mapHeader;
+    Mapdata::Enbin::Header enHeader;
+
     std::vector<std::string> filenames;
     int selectedFileIndex;
     std::string selectedFile;
@@ -172,16 +175,23 @@ private:
 
 
     std::vector<Colbin::Entry> walls;
-    std::vector<Mapdata::Mapbin::CommonGimmick> commonGimmicks;
     std::vector<Mapdata::Mapbin::DataSegLabel> dataSegLabels;
+    std::vector<Mapdata::Mapbin::CommonGimmick> commonGimmicks;
+    std::vector<Mapdata::Mapbin::Gimmick> gimmicks;
     std::vector<Mapdata::Mapbin::Path> paths;
     std::vector<std::vector<Vec2f>> lines;
-    std::vector<Mapdata::Mapbin::Gimmick> gimmicks;
-    std::vector<Mapdata::Enbin::EnemyEntry> enemies;
     std::vector<Mapdata::Mapbin::Controller> controllers;
-    
+    std::vector<Mapdata::Mapbin::CourseInfo> courseInfos;
+
+
     std::vector<std::string> rawCommonGimmickNames;
+    std::vector<std::string> commonGimmickNameBytes;
     std::vector<std::string> commonGimmickNames;
+    std::vector<std::string> colbinTypes;
+    std::vector<std::string> dataSegLabelNames;
+
+    std::vector<Mapdata::Enbin::EnemyEntry> enemies;
+    std::vector<Mapdata::Enbin::FooterEntry> enFooterEntries;
 
     bool renderWalls;
     bool renderActionPoints;

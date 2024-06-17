@@ -16,7 +16,7 @@ namespace Mapdata {
             Vec2f boundsEnd;
             u32 wallCount; // colbin
             u32 wallOffset;
-            u32 dataSegLabelCount; // no struct yet
+            u32 dataSegLabelCount;
             u32 dataSegLabelOffset;
             u32 commonGimmickCount;
             u32 commonGimmickOffset;
@@ -26,24 +26,19 @@ namespace Mapdata {
             u32 pathOffset;
             u32 controllerCount;
             u32 controllerOffset;
-            u32 structs5Count;
-            u32 structs5Offset;
+            u32 courseInfoCount; //
+            u32 courseInfoOffset;
             u32 commonGimmickHeaderOffset;
-            u32 colbinFooterOffset;
-            u32 colbinFooterEnd;
+            u32 colbinTypeOffset;
+            u32 dataSegLabelHeaderOffset;
         };
 
         static_assert(sizeof(Mapdata::Mapbin::Header) == 0x58, "header is wrong size");
 
         // it's really more like "Data Seg WITH Label"
         // but i'm using official names wherever possible
-        struct DataSegLabel {
-            Vec2f point1;
-            Vec2f point2;
-            Vec2f _10;
-            u32 index;
-            u32 collisionTypeIndex;
-            u32 _20;
+        struct DataSegLabel : public Colbin::Entry {
+            u32 labelIndex;
         };
 
         static_assert(sizeof(Mapdata::Mapbin::DataSegLabel) == 0x24, "data seg label is wrong size");
@@ -100,6 +95,18 @@ namespace Mapdata {
         };
 
         static_assert(sizeof(Mapdata::Mapbin::Controller) == 296, "controller size is incorrect");
+
+
+        struct CourseInfo {
+            char name[0x20];
+            char _20[0x20];
+            u32 index;
+            u8 contents[292 - 0x50];
+            Vec3f position;
+        };
+
+        static_assert(sizeof(Mapdata::Mapbin::CourseInfo) == 292, "course info size is incorrect");
+
     }
 }
 #pragma pack(pop)

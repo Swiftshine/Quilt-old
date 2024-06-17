@@ -53,6 +53,7 @@ public:
     void Configure(Mapdata::Mapbin::Gimmick* gmk);
 public:
     Mapdata::Mapbin::GimmickParameters params;
+    char _30[0x10] = { 0 };
 };
 
 class CmnGmkNode : public NodeBase {
