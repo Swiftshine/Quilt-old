@@ -30,6 +30,45 @@ void Editor::SetupDocking() {
     ImGui::DockBuilderFinish(dockspaceID);
 }
 
+void Editor::HandleViewport() {
+    if (ImGui::BeginTabItem("Editor")) {
+
+        if (!open) {
+            ImGui::EndTabItem();
+            return;
+        }
+
+        if (!dockSetup) {
+            SetupDocking();
+            dockSetup = true;
+        }
+
+        if (glfwGetWindowAttrib(glfwGetCurrentContext(), GLFW_ICONIFIED)) {
+            // it's minimised
+            ImGui::EndTabItem();
+            return;
+        }
+
+        ImGuiID dockspace_id = ImGui::GetID("Quilt_Editor_DockSpace");
+        ImGui::BeginChild("Quilt_Editor_DockSpace", ImVec2(0, 0), 0, ImGuiWindowFlags_NoMove);
+        ImGui::DockSpace(dockspace_id);
+
+        if (ImGui::Begin("Viewport")) {
+            UpdateCamera();
+            HandleFileDropdown();
+            HandleCommonGimmickList();
+            RenderGrid();
+            RenderFile();
+            HandleParameters();
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) ClearSelectedNode();
+            UpdateNodes();
+            ImGui::End();
+        }
+        ImGui::EndChild();
+        ImGui::EndTabItem();
+    }
+}
+
 
 void Editor::HandleTabs() {
     int curW, curH;
@@ -53,38 +92,6 @@ void Editor::HandleTabs() {
     ImGui::End();
 }
 
-void Editor::HandleViewport() {
-    if (ImGui::BeginTabItem("Editor")) {
-        
-        if (!open) {
-            ImGui::EndTabItem();
-            return;
-        }
-
-        if (!dockSetup) {
-            SetupDocking();
-            dockSetup;
-        }
-
-        ImGuiID dockspace_id = ImGui::GetID("Quilt_Editor_DockSpace");
-        ImGui::BeginChild("Quilt_Editor_DockSpace", ImVec2(0, 0), 0, ImGuiWindowFlags_NoMove);
-        ImGui::DockSpace(dockspace_id);
-
-        if (ImGui::Begin("Viewport")) {
-            UpdateCamera();
-            HandleFileDropdown();
-            HandleCommonGimmickList();
-            RenderGrid();
-            RenderFile();
-            HandleParameters();
-            if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) ClearSelectedNode();
-            UpdateNodes();
-            ImGui::End();
-        }
-        ImGui::EndChild();
-        ImGui::EndTabItem();
-    }
-}
 
 
 void Editor::HandleFileDropdown() {
