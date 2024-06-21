@@ -1,95 +1,80 @@
 #pragma once
 
+#include <memory>
 #include "mapdata.h"
-#include "types.h"
 
+#include "quilt.h"
+/* Base */
 class NodeBase {
 public:
-    static enum DrawTypes : u32 {
-        DrawType_Square,
-        DrawType_Line,
-        DrawType_Circle,
-        DrawType_Triangle,
-    };
-
-    static enum NodeType : u32 {
-        NodeType_Base = 0,
-        NodeType_CommonGimmick,
-        NodeType_Gimmick,
-        NodeType_Controller,
-        NodeType_Enemy,
+    static enum NodeType {
+        Base = 0,
+        Wall,
+        Wall2,
+        CommonGimmick,
+        Gimmick,
+        Zone,
     };
 public:
-    NodeBase();
-    ~NodeBase();
+	NodeBase() { }
+	~NodeBase() { }
 
-    bool RectHover();
-    bool RectClick();
-    void HandleDragging();
-    void EnableDragging();
-    void DisableDragging();
-    void Draw();
-    void Update();
-public:
-    std::string name;
-    Vec2f       position;
-    Vec2f       drawPosition;
-    Vec2f       size;
-    RGBA        color;
-    RGBA        selectionColor;
-    NodeType    nodeType;
-    DrawTypes   drawType;
-    bool        isSelected;
-    bool        paramsShown;
-private:
-    bool        draggable;
+	virtual void Update() = 0;
+
+    bool IsSelected() { return isSelected; }
+    void Select() { isSelected = true;  }
+    void Deselect() { isSelected = false; }
+    NodeType GetType() { return type; }
+protected:
+    bool isSelected = false;
+    bool isDragOffsInited = false;
+    Vec2f dragOffs = Vec2f();
+    NodeType type = NodeType::Base;
 };
 
-class GmkNode : public NodeBase {
-public:
-    GmkNode();
-    ~GmkNode();
-
-    void Configure(Mapdata::Mapbin::Gimmick* gmk);
-public:
-    Mapdata::Mapbin::GimmickParameters params;
-    char _30[0x10] = { 0 };
-};
-
+/* Common Gimmick */
 class CmnGmkNode : public NodeBase {
 public:
-    CmnGmkNode();
-    ~CmnGmkNode();
+    CmnGmkNode(Mapdata::Mapbin::CommonGimmick& newCmnGmk) {
+        cmnGmk = std::make_shared<Mapdata::Mapbin::CommonGimmick>();
+        *cmnGmk = newCmnGmk;
+        type = NodeType::CommonGimmick;
+    }
 
-    void Configure(Mapdata::Mapbin::CommonGimmick* cmnGmk);
+    ~CmnGmkNode() { }
+
+    virtual void Update() override;
 public:
-    int nameIndex;
-    std::string qid;
-    Mapdata::Mapbin::CommonGimmickParameters params;
+    std::shared_ptr<Mapdata::Mapbin::CommonGimmick> cmnGmk;
+};
+/* Gimmick */
+class GmkNode : public NodeBase {
+public:
+	GmkNode(Mapdata::Mapbin::Gimmick& newGmk) {
+		gmk = std::make_shared<Mapdata::Mapbin::Gimmick>();
+		*gmk = newGmk;
+        type = NodeType::Gimmick;
+	}
+
+	~GmkNode() { }
+
+    virtual void Update() override;
+
+public:
+	std::shared_ptr<Mapdata::Mapbin::Gimmick> gmk;
 };
 
-class ContNode : public NodeBase {
+class ZoneNode : public NodeBase {
 public:
-    ContNode();
-    ~ContNode();
+    ZoneNode(Mapdata::Mapbin::Zone& newZone) {
+        type = NodeType::Zone;
+        zone = std::make_shared < Mapdata::Mapbin::Zone>();
+        *zone = newZone;
+    }
 
-    void Configure(Mapdata::Mapbin::Controller* controller);
+    ~ZoneNode() { }
+
+    virtual void Update() override;
 public:
-    Mapdata::Mapbin::GimmickParameters params;
-};
-
-class EnNode : public NodeBase {
-public:
-    EnNode();
-    ~EnNode();
-
-    void Configure(Mapdata::Enbin::EnemyEntry* entry);
-
-public:
-    std::string behavior;
-    std::string pathName;
-    std::string beadType;
-    std::string beadColor;
-    std::string direction;
-    std::string orientation;
+    std::shared_ptr<Mapdata::Mapbin::Zone> zone;
 };

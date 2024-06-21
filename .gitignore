@@ -1,8 +1,8 @@
-*.mapbin
-*.enbin
-*.vcxproj*
-x64/
-stage*/
 .vs/
+res/font/
+src/deps/
+x64/
+Debug/
+*.vcx*
 *.ini
-font/
+enc_temp_folder/

@@ -1,197 +1,136 @@
-#include "quilt.h"
+#include "node.h"
+#include "editor.h"
 
+void CmnGmkNode::Update() {
+    // drag
+    cmnGmk->position.Swap();
 
-NodeBase::NodeBase() {
-	name = "";
-	position = Vec2f();
-	drawPosition = Vec2f();
-	size = Vec2f();
-	color = RGBA(0xFFFFFFFF);
-	selectionColor = RGBA(color.r, color.g, color.b, color.a / 2);
-	drawType = DrawType_Square;
-	isSelected = false;
-	draggable = false;
-	paramsShown = false;
-	nodeType = NodeType_Base;
+    // start - check if i got clicked
+    if (Quilt::Util::IsRectHovered(cmnGmk->position, GIMMICK_SQUARE_SIZE, GIMMICK_SQUARE_SIZE)) {
+        int index = Swap32(cmnGmk->nameIndex);
+        std::string str = Editor::Instance()->GetCommonGimmickNameFromIndex(index);
+        Quilt::Util::DrawTooltip(str, false);
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+            Editor::Instance()->SelectNode(this);
+            
+            Vec2f worldMouse = Editor::Instance()->GetWorldMousePosition();
+
+            // calculate drag offs
+            if (!isDragOffsInited) {
+                dragOffs.x = worldMouse.x - cmnGmk->position.x;
+                dragOffs.y = worldMouse.y - cmnGmk->position.y;
+                isDragOffsInited = true;
+            }
+        }
+    }
+
+    // middle - change position if im being dragged
+    if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && isDragOffsInited) {
+        Vec2f worldMouse = Editor::Instance()->GetWorldMousePosition();
+
+        cmnGmk->position.x = worldMouse.x - dragOffs.x;
+        cmnGmk->position.y = worldMouse.y - dragOffs.y;
+    }
+
+    // end - reset
+    if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+        isDragOffsInited = false;
+    }
+
+    cmnGmk->position.Swap();
+
+    RGBA drawCol = COMMON_GIMMICK_COLOR_INACTIVE;
+    if (isSelected) {
+        drawCol = COMMON_GIMMICK_COLOR_ACTIVE;
+    }
+
+    // draw
+    Vec2f p = cmnGmk->position.GetSwap();
+    Quilt::Util::DrawRect(p, COMMON_GIMMICK_SQUARE_SIZE, COMMON_GIMMICK_SQUARE_SIZE, drawCol);
 }
 
-NodeBase::~NodeBase() {
+void GmkNode::Update() {
+    // drag
+    gmk->position.Swap();
 
+    // start - check if i got clicked
+    if (Quilt::Util::IsRectHovered(gmk->position, GIMMICK_SQUARE_SIZE, GIMMICK_SQUARE_SIZE)) {
+        Quilt::Util::DrawTooltip(gmk->name, false);
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+            Editor::Instance()->SelectNode(this);
+            Vec2f worldMouse = Editor::Instance()->GetWorldMousePosition();
+
+            // calculate drag offs
+            if (!isDragOffsInited) {
+                dragOffs.x = worldMouse.x - gmk->position.x;
+                dragOffs.y = worldMouse.y - gmk->position.y;
+                isDragOffsInited = true;
+            }
+        }
+    }
+
+    // middle - change position if im being dragged
+    if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && isDragOffsInited) {
+        Vec2f worldMouse = Editor::Instance()->GetWorldMousePosition();
+
+        gmk->position.x = worldMouse.x - dragOffs.x;
+        gmk->position.y = worldMouse.y - dragOffs.y;
+    }
+
+    // end - reset
+    if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+        isDragOffsInited = false;
+    }
+
+    gmk->position.Swap();
+
+    RGBA drawCol = GIMMICK_COLOR_INACTIVE;
+    if (isSelected) {
+        drawCol = GIMMICK_COLOR_ACTIVE;
+    }
+
+    // draw
+    Vec2f p = gmk->position.GetSwap();
+    Quilt::Util::DrawRect(p, GIMMICK_SQUARE_SIZE, GIMMICK_SQUARE_SIZE, drawCol);
 }
 
-void NodeBase::Update() {
-	HandleDragging();
-	Draw();
-}
+void ZoneNode::Update() {
+    zone->boundsStart.Swap();
+    zone->boundsEnd.Swap();
 
-bool NodeBase::RectHover() {
-	return Editor::RectHover(drawPosition, size.x, size.y);
-}
+    if (Quilt::Util::IsRectHovered(zone->boundsStart, zone->boundsEnd)) {
+        Quilt::Util::DrawTooltip(zone->name, false);
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+            Editor::Instance()->SelectNode(this);
+            Vec2f worldMouse = Editor::Instance()->GetWorldMousePosition();
 
-bool NodeBase::RectClick() {
-	if (Editor::RectClick(drawPosition, size.x, size.y)) {
-		EnableDragging();
-		return true;
-	}
+            if (!isDragOffsInited) {
+                dragOffs.x = worldMouse.x - zone->boundsStart.x;
+                dragOffs.y = worldMouse.y - zone->boundsStart.y;
+                isDragOffsInited = true;
+            }
+        }
+    }
+    if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && isDragOffsInited) {
+        Vec2f worldMouse = Editor::Instance()->GetWorldMousePosition();
 
-	return false;
-}
+        Vec2f newBoundsStart = Vec2f(worldMouse.x - dragOffs.x, worldMouse.y - dragOffs.y);
+        Vec2f offset = newBoundsStart - zone->boundsStart;
+        zone->boundsStart = newBoundsStart;
+        zone->boundsEnd = zone->boundsEnd + offset;
+    }
 
-// dragging kinda sucks atm
-// so ignore this hacky solution
-void NodeBase::HandleDragging() {
-	ImGuiIO& io = ImGui::GetIO();
+    if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+        isDragOffsInited = false;
+    }
 
-	if (draggable && ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
-		position.x += (io.MouseDelta.x / camera.zoom) / camera.zoom;
-		position.y -= (io.MouseDelta.y / camera.zoom) / camera.zoom;
-	}
-	else {
-		DisableDragging();
-	}
-}
+    zone->boundsStart.Swap();
+    zone->boundsEnd.Swap();
 
+    RGBA drawCol = ZONE_COLOR_INACTIVE;
+    if (isSelected) {
+        drawCol = ZONE_COLOR_ACTIVE;
+    }
 
-void NodeBase::EnableDragging() {
-	draggable = true;
-}
-void NodeBase::DisableDragging() { draggable = false; }
-
-void NodeBase::Draw() {
-	if (RectHover() && !name.empty()) Editor::DrawTooltip(name.c_str());
-
-	float drawX = position.x * camera.zoom + camera.x;
-	float drawY = camera.h - (position.y * camera.zoom) + camera.y;
-	drawY -= size.y;
-	drawPosition = Vec2f(drawX, drawY);
-
-	RGBA drawCol = color;
-	if (RectHover() || isSelected) drawCol = selectionColor;
-
-
-	switch (drawType) {
-		case DrawType_Circle: break;
-
-		case DrawType_Square: {
-			Editor::DrawRect(drawPosition, size.x, size.y, drawCol);
-			break;
-		}
-
-		case DrawType_Triangle: break;
-
-		case DrawType_Line: {
-			Editor::DrawLine(drawPosition, size, drawCol);
-			break;
-		}
-	}
-}
-
-GmkNode::GmkNode() { params = { 0 }; }
-
-GmkNode::~GmkNode() { }
-
-void GmkNode::Configure(Mapdata::Mapbin::Gimmick* gimmick) {
-	nodeType = NodeType_Gimmick;
-	color = GIMMICK_COLOR;
-	selectionColor = GIMMICK_COLOR_SELECT;
-
-	EnableDragging();
-
-	position = Vec2f(SwapF32(gimmick->position.x), SwapF32(gimmick->position.y));
-	std::memcpy(this->_30, gimmick->_30, 0x10);
-	float drawX = SwapF32(gimmick->position.x) * camera.zoom + camera.x;
-	float drawY = camera.h - (SwapF32(gimmick->position.y) * camera.zoom) + camera.y;
-
-	size = Vec2f(SQUARE_SIZE, SQUARE_SIZE);
-	drawY -= size.y;
-	drawPosition = Vec2f(drawX, drawY);
-	name = gimmick->name;
-	params = gimmick->params;
-}
-
-CmnGmkNode::CmnGmkNode() { nameIndex = -1; params = { 0 }; }
-CmnGmkNode::~CmnGmkNode() { }
-
-void CmnGmkNode::Configure(Mapdata::Mapbin::CommonGimmick* cmnGmk) {
-	nodeType = NodeType_CommonGimmick;
-	color = COMMON_GIMMICK_COLOR;
-	selectionColor = COMMON_GIMMICK_COLOR_SELECT;
-
-	EnableDragging();
-
-	position = Vec2f(SwapF32(cmnGmk->position.x), SwapF32(cmnGmk->position.y));
-
-	params = cmnGmk->params;
-
-	nameIndex = Swap32(cmnGmk->nameIndex);
-
-	float drawX = SwapF32(cmnGmk->position.x) * camera.zoom + camera.x;
-	float drawY = camera.h - (SwapF32(cmnGmk->position.y) * camera.zoom) + camera.y;
-	
-	size = Vec2f(SQUARE_SIZE, SQUARE_SIZE);
-	drawY -= size.y;
-	drawPosition = Vec2f(drawX, drawY);
-}
-
-ContNode::ContNode() { params = { 0 }; }
-
-ContNode::~ContNode() { }
-
-void ContNode::Configure(Mapdata::Mapbin::Controller* controller) {
-	nodeType = NodeType_Controller;
-	color = CONTROLLER_COLOR;
-	selectionColor = CONTROLLER_COLOR_SELECT;
-
-	EnableDragging();
-
-	position = Vec2f(SwapF32(controller->boundsStart.x), SwapF32(controller->boundsStart.y));
-
-	float drawX = SwapF32(controller->boundsStart.x) * camera.zoom + camera.x;
-	float drawY = camera.h - (SwapF32(controller->boundsStart.y) * camera.zoom) + camera.y;
-
-	
-	size.x = SwapF32(controller->boundsEnd.x) - SwapF32(controller->boundsStart.x);
-	size.y = SwapF32(controller->boundsEnd.y) - SwapF32(controller->boundsStart.y);
-																					   
-	drawY -= size.y;
-	drawPosition = Vec2f(drawX, drawY);
-	name = controller->name;
-	params = controller->params;
-}
-
-EnNode::EnNode() {
-	behavior = "";
-	pathName = "";
-	beadType = "";
-	beadColor = "";
-	direction = "";
-	orientation = "";
-}
-
-EnNode::~EnNode() { }
-
-void EnNode::Configure(Mapdata::Enbin::EnemyEntry* enemy) {
-	nodeType = NodeType_Enemy;
-	position = Vec2f(SwapF32(enemy->position1.x), SwapF32(enemy->position1.y));
-
-	color = ENEMY_COLOR;
-	selectionColor = ENEMY_COLOR_SELECT;
-
-	EnableDragging();
-
-	float drawX = SwapF32(enemy->position1.x) * camera.zoom + camera.x;
-	float drawY = camera.h - (SwapF32(enemy->position1.y) * camera.zoom) + camera.y;
-
-	size = Vec2f(SQUARE_SIZE, SQUARE_SIZE);
-	drawY -= size.y;
-	drawPosition = Vec2f(drawX, drawY);
-
-	name = enemy->name;
-
-	behavior = enemy->behavior;
-	pathName = enemy->pathName;
-	beadType = enemy->beadType;
-	beadColor = enemy->beadColor;
-	direction = enemy->direction;
-	orientation = enemy->orientation;
+    Quilt::Util::DrawRect(zone->boundsStart.GetSwap(), zone->boundsEnd.GetSwap(), drawCol);
 }

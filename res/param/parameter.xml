@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root>
+    <!-- Regular Gimmicks -->
+    <gimmick name="START" note="The player's starting position."/>
+
+    <gimmick name="StageRankSetting" note="A group of settings related to the ranking at the end of the level.">
+        <parameter title="Bronze Threshold" type="int" slot="0" description="The number of beads necessary for a bronze medal."/>
+        <parameter title="Silver Threshold" type="int" slot="1" description="The number of beads necessary for a silver medal."/>
+        <parameter title="Gold Threshold"   type="int" slot="2" description="The number of beads necessary for a gold medal."/>
+    </gimmick>
+
+    <gimmick name="WoolBridge" note="A wool bridge.">
+        <parameter title="Length" type="float" slot="0" description=""/>
+    </gimmick>
+
+    <!-- Common Gimmicks -->
+    <common qid="CLOTH_TURN_COMMON" note="A piece of cloth that hides something.">
+        <parameter title="Texture" type="dropdown_int" slot="0" description="The texture the cloth will use.">
+            <dropdown>
+                <item value="0" label="Square"/>
+                <item value="1" label="Door"/>
+                <item value="2" label="Treasure Chest"/>
+                <item value="3" label="Metamortex"/>
+                <item value="4" label="Box"/>
+            </dropdown>
+        </parameter>
+    </common>
+
+    <common qid="SIMPLE_MDL_GMK" note="This gimmick loads a model.">
+        <parameter title="Resource Name" type="string" slot="-1" description="The Good-Feel Archive that will be loaded."/>
+    </common>
+
+    <common qid="ENEMY_GENERATOR_1" note="This gimmick spawns enemies.">
+        <parameter title="Enemy Type" type="string" slot="-1" description="The enemy that will be spawned."/> 
+    </common>
+
+    <!-- Zones -->
+    <zone name="LADDER" note="A ladder.">
+        <parameter title="Rung Color" type="dropdown_int" slot="0" description="The color of the ladder's rungs.">
+            <dropdown>
+                <item value="0" label="Orange"/>
+                <item value="1" label="Orange"/>
+                <item value="2" label="Yellow"/>
+                <item value="3" label="Green"/>
+                <item value="4" label="Cyan"/>
+                <item value="5" label="Purple"/>
+                <item value="6" label="Pink"/>
+            </dropdown>
+        </parameter>
+    </zone>
+
+    <zone name="MissionEvent" note="">
+        <parameter title="unk 0" type="int" slot="0" description=""/>
+        <parameter title="unk 1" type="int" slot="1" description=""/>
+    </zone>
+
+    <zone name="PlayerAreaSwitch" note="">
+        <parameter title="Target" type="string" slot="0" description="The name of the area it will switch to."/>
+    </zone>
+
+    <zone name="Course_00" note="">
+        <parameter title="Path Name" type="string" slot="0" description="The target path name."/>
+    </zone>
+</root>

@@ -1,18 +1,15 @@
-#include <cstdio>
-
 #include "quilt.h"
+#include "editor.h"
 
-static Editor editor;
+int main() {
+    if (!Editor::Instance()->Setup()) {
+        Quilt::Debug::Error("Failed to set up Quilt.");
+        Editor::Instance()->Cleanup();
+        return 1;
+    }
 
-int main(int argc, char** argv) {
-	if (!editor.Setup()) {
-		printf("Error - failed to set up Quilt\n");
-		editor.Cleanup();
-		return -1;
-	}
+    Editor::Instance()->Run();
+    Editor::Instance()->Cleanup();
 
-	editor.Run();
-	editor.Cleanup();
-	printf("Program ended succesfully\n");
-	return 0;
+    return 0;
 }

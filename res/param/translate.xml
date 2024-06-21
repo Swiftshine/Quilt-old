@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root>
+    <!-- Translations are sorted alphabetically by name -->
+
+    <!-- B -->
+    <translation qid="BEAD_POP_SWITCH" name="Bead Pop Switch" bytes="42656164506F70537769746368"/>
+    <translation qid="BLUE_BEAD_LARGE" name="Blue Bead (Large)" bytes="8372815B8359816991E5816A90C2"/>
+    <translation qid="BLUE_BEAD_SMALL" name="Blue Bead (Small)" bytes="8372815B835981698FAC816A90C2"/>
+    <translation qid="BREAKABLE_STRUCTURE" name="Breakable Structure" bytes="427265616B61626C65537472756374757265"/>
+
+    <!-- C -->
+    <translation qid="CLOTH_TURN_COMMON" name="Cloth Patch" bytes="82 DF 82 AD 82 E8 95 7A 94 C4 97 70"/>
+
+    <!-- D -->
+    <translation qid="DAY_NIGHT_SWITCH" name="Day/Night Switch" bytes="928B96E990D882E891D682A68358834383628360"/>
+    <translation qid="WOOL_BLOCK_NI" name="Denim Block" bytes="576F6F6C426C6F636B4E49"/>
+    <translation qid="DRAWSTRING" name="Drawstring" bytes="88 F8 82 AB 8A F1 82 B9 95 7A"/>
+    <!-- E -->
+    <translation qid="ENEMY_GENERATOR_1" name="Enemy Generator (1)" bytes="93 47 90 B6 90 AC"/>
+
+    <!-- F -->
+    <translation qid="FOUNTAIN_2" name="Fountain (2)" bytes="95AC90858251"/>
+
+    <!-- G -->
+    <translation qid="GOAL_3" name="Goal (3)" bytes="8353815B838B8252"/>
+
+    <!-- O -->
+    <translation qid="ORANGE_BEAD_MEDIUM" name="Orange Bead (Medium)" bytes="8372815B835981699286816A9EF2"/>
+    <!-- P -->
+    <translation qid="PATH_BEAD_GENERATOR" name="Path Bead Generator" bytes="506174684265616447656E657261746F72"/>
+    <translation qid="PENDULUM_BUTTON" name="Pendulum Button" bytes="905582E88E71837B835E8393"/>
+    <translation qid="PURPLE_BEAD_SMALL" name="Purple Bead (Small)" bytes="8372815B835981698FAC816A8E87"/>
+
+    <!-- S -->
+    <translation qid="SEA_TURTLE" name="Sea Turtle" bytes="8345837E834B8381"/>
+    <translation qid="SIMPLE_MDL_GMK" name="Simple Model Gimmick" bytes="53696D706C654D646C476D6B"/>
+    <translation qid="BEAD_XL" name="Star Bead" bytes="83 72 81 5B 83 59 81 69 93 C1 91 E5 81 6A"/>
+    
+    <!-- T -->
+    <translation qid="TREASURE" name="Treasure" bytes="82A895F3"/>
+
+
+    <!-- W -->
+    <translation qid="WARP_DOOR" name="Warp Door" bytes="97A08CFB"/>
+    <translation qid="WHITE_BEAD_LARGE" name="White Bead (Large)" bytes="8372815B8359816991E5816A9492"/>
+    <translation qid="WHITE_BEAD_MEDIUM" name="White Bead (Medium)" bytes="8372815B835981699286816A9492"/>
+    <translation qid="WHITE_BEAD_SMALL" name="White Bead (Small)" bytes="83 72 81 5B 83 59 81 69 8F AC 81 6A 94 92"/>
+    <translation qid="WOOL_WATER_1" name="Water (1)" bytes="96 D1 8E 85 82 CC 90 85"/>
+    <translation qid="WOOL_BLOCK_FB" name="Wool Block (Hollow)" bytes="57 6F 6F 6C 42 6C 6F 63 6B 46 42"/>
+    
+
+    <!-- Y -->
+    <translation qid="YELLOW_BEAD_LARGE" name="Yellow Bead (Large)" bytes="8372815B8359816991E5816A89A9"/>
+    <translation qid="YELLOW_BEAD_MEDIUM" name="Yellow Bead (Medium)" bytes="8372815B835981699286816A89A9"/>
+    <translation qid="YELLOW_BEAD_SMALL" name="Yellow Bead (Small)" bytes="8372815B835981698FAC816A89A9"/>
+</root>
