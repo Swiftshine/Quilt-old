@@ -1,6 +1,10 @@
 #include "node.h"
 #include "editor.h"
 
+void WallNode::Update() {
+    
+}
+
 void CmnGmkNode::Update() {
     // drag
     cmnGmk->position.Swap();

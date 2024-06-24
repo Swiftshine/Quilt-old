@@ -31,6 +31,8 @@ namespace Quilt::Util {
     bool IsRectClicked(Vec2f pos, float w, float h);
     bool IsRectClicked(Vec2f p1, Vec2f p2);
 
+    bool IsCircleHovered(Vec2f center, float radius);
+    bool IsCircleClicked(Vec2f center, float radius);
     Vec2f GetMouseWorldPos();
     Vec2f ToWorld(Vec2f src);
     ImVec2 ToWorldImVec2(Vec2f src);

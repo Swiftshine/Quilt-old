@@ -209,10 +209,10 @@ void Editor::Param_CommonGimmick() {
 
 	int nIndex = Swap32(node->cmnGmk->nameIndex);
 	std::string dummy = GetCommonGimmickNameFromIndex(nIndex);
-
-	// todo - have some kind of window with every raw name to select from
-	// (and a dropdown on THIS window to select from it)
-	ImGui::InputText("Name", dummy.data(), 0x20);
+	if (ImGui::Selectable(dummy.data())) {
+		ImGui::SetClipboardText(dummy.data());
+	}
+	Quilt::Util::DrawTooltip("Click to copy name to clipboard.");
 
 	node->cmnGmk->position.Swap();
 	ImGui::InputFloat("X Position", &node->cmnGmk->position.x, 0.1f, 1.0f);

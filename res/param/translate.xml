@@ -3,13 +3,21 @@
 <root>
     <!-- Translations are sorted alphabetically by name -->
 
+    <!-- A -->
+    <translation qid="SIGNBOARD_ARROW" name="Arrow Signboard" bytes="96 EE 88 F3 8A C5 94 C2"/>
+
     <!-- B -->
     <translation qid="BEAD_POP_SWITCH" name="Bead Pop Switch" bytes="42656164506F70537769746368"/>
     <translation qid="BLUE_BEAD_LARGE" name="Blue Bead (Large)" bytes="8372815B8359816991E5816A90C2"/>
+    <translation qid="BLUE_BEAD_MEDIUM" name="Blue Bead (Medium)" bytes="8372815B835981699286816A90C2"/>
     <translation qid="BLUE_BEAD_SMALL" name="Blue Bead (Small)" bytes="8372815B835981698FAC816A90C2"/>
     <translation qid="BREAKABLE_STRUCTURE" name="Breakable Structure" bytes="427265616B61626C65537472756374757265"/>
 
     <!-- C -->
+    <translation qid="CAM_CONTROL" name="Camera Control" bytes="43616D4374726C"/>
+    <translation qid="CAMERA_ZOOM" name="Camera Zoom" bytes="83 4A 83 81 83 89 83 59 81 5B 83 80"/>
+    <translation qid="CAMERA_ZOOM_TEMPORARY" name="Camera Zoom (Temporary)" bytes="834A8381838988EA8E9E8359815B8380"/>
+    <translation qid="CHERRY_BLOSSOM_TREE_151" name="Cherry Blossom Tree (151)" bytes="8D F7 82 CC 96 D8 28 31 35 31 29"/>
     <translation qid="CLOTH_TURN_COMMON" name="Cloth Patch" bytes="82 DF 82 AD 82 E8 95 7A 94 C4 97 70"/>
 
     <!-- D -->
@@ -24,17 +32,38 @@
 
     <!-- G -->
     <translation qid="GOAL_3" name="Goal (3)" bytes="8353815B838B8252"/>
+    <translation qid="GREEN_BEAD_LARGE" name="Green Bead (Large)" bytes="8372815B8359816991E5816A97CE"/>
+    <translation qid="GREEN_BEAD_MEDIUM" name="Green Bead (Medium)" bytes="8372815B835981699286816A97CE"/>
+    <translation qid="GREEN_BEAD_SMALL" name="Green Bead (Small)" bytes="8372815B835981698FAC816A97CE"/>
+    <!-- M -->
+    <translation qid="MOUTH_WARP_ENTRANCE" name="Mouth Warp Entrance" bytes="97 A0 92 6E 8C FB 94 C4 97 70"/>
+    <translation qid="MOUTH_WARP_EXIT" name="Mouth Warp Exit" bytes="97A0926E8CFB8F6F8CFB"/>
+    <translation qid="MS_RACE_COURSE" name="MS Race Course" bytes="4D7352616365436F75727365"/>
+    <translation qid="MS_RACE_GOAL" name="MS Race Goal" bytes="4D 73 52 61 63 65 47 6F 61 6C"/>
+    <translation qid="MULTICAM_PRIORITY_CONTROL" name="Multicam Priority Control" bytes="4D756C746943616D5072696F726974794374726C"/>
 
     <!-- O -->
+    <translation qid="ORANGE_BEAD_LARGE" name="Orange Bead (Large)" bytes="83 72 81 5B 83 59 81 69 91 E5 81 6A 9E F2"/>
     <translation qid="ORANGE_BEAD_MEDIUM" name="Orange Bead (Medium)" bytes="8372815B835981699286816A9EF2"/>
+    <translation qid="ORANGE_BEAD_SMALL" name="Orange Bead (Small)" bytes="8372815B835981698FAC816A9EF2"/>
+
     <!-- P -->
     <translation qid="PATH_BEAD_GENERATOR" name="Path Bead Generator" bytes="506174684265616447656E657261746F72"/>
+    <translation qid="PLAYER_MULTI_AREA_SWITCH" name="Player Multi Area Switch" bytes="506C617965724D756C746941726561537769746368"/>
+    <translation qid="PREVIEW_BG_LOAD" name="Preview BG Load" bytes="5072657669657742674C6F6164"/>
     <translation qid="PENDULUM_BUTTON" name="Pendulum Button" bytes="905582E88E71837B835E8393"/>
     <translation qid="PURPLE_BEAD_SMALL" name="Purple Bead (Small)" bytes="8372815B835981698FAC816A8E87"/>
+
+    <!-- R -->
+    <translation qid="RED_BEAD_LARGE" name="Red Bead (Large)" bytes="83 72 81 5B 83 59 81 69 91 E5 81 6A 90 D4"/>
+    <translation qid="RED_BEAD_MEDIUM" name="Read Bead (Medium)" bytes="83 72 81 5B 83 59 81 69 92 86 81 6A 90 D4"/>
+    <translation qid="RED_BEAD_SMALL" name="Red Bead (Small)" bytes="8372815B835981699286816A90D4"/>
+    <translation qid="RED_BEAD_SMALL" name="Red Bead (Small)" bytes="8372815B835981698FAC816A90D4"/>
 
     <!-- S -->
     <translation qid="SEA_TURTLE" name="Sea Turtle" bytes="8345837E834B8381"/>
     <translation qid="SIMPLE_MDL_GMK" name="Simple Model Gimmick" bytes="53696D706C654D646C476D6B"/>
+    <translation qid="SHADOW_ITO_OFFSET" name="Shadow Ito Offset" bytes="53 68 61 64 6F 77 49 74 6F 4F 66 66 73 65 74"/>
     <translation qid="BEAD_XL" name="Star Bead" bytes="83 72 81 5B 83 59 81 69 93 C1 91 E5 81 6A"/>
     
     <!-- T -->
@@ -48,7 +77,7 @@
     <translation qid="WHITE_BEAD_SMALL" name="White Bead (Small)" bytes="83 72 81 5B 83 59 81 69 8F AC 81 6A 94 92"/>
     <translation qid="WOOL_WATER_1" name="Water (1)" bytes="96 D1 8E 85 82 CC 90 85"/>
     <translation qid="WOOL_BLOCK_FB" name="Wool Block (Hollow)" bytes="57 6F 6F 6C 42 6C 6F 63 6B 46 42"/>
-    
+    <translation qid="WOOL_BLOCK_F" name="Wool Block (Solid)" bytes="57 6F 6F 6C 42 6C 6F 63 6B 46"/>
 
     <!-- Y -->
     <translation qid="YELLOW_BEAD_LARGE" name="Yellow Bead (Large)" bytes="8372815B8359816991E5816A89A9"/>

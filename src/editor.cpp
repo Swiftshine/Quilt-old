@@ -94,5 +94,5 @@ void Editor::Cleanup() {
 }
 
 void Editor::Process() {
-    UpdateCamera();
+    
 }

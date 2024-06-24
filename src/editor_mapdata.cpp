@@ -14,6 +14,8 @@ void Editor::RenderMapdata() {
 
 	if (showWalls) {
 		for (auto& wall : walls) {
+			Quilt::Util::DrawRect(wall.point1.GetSwap(), 0.2f, 0.2f, 0xFF000060);
+			Quilt::Util::DrawRect(wall.point2.GetSwap(), 0.2f, 0.2f, 0x00FF0060);
 			Quilt::Util::DrawLine(wall.point1.GetSwap(), wall.point2.GetSwap(), 0xFFFFFFFF);
 		}
 	}

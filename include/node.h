@@ -32,6 +32,24 @@ protected:
     NodeType type = NodeType::Base;
 };
 
+/* Walls */
+
+// wall nodes are...a little different in that
+// they aren't one, point, but they're two.
+class WallNode : public NodeBase {
+public:
+    WallNode(Colbin::Entry& newWall) {
+        wall = std::make_shared<Colbin::Entry>();
+        *wall = newWall;
+    }
+
+    ~WallNode() { }
+
+    virtual void Update() override;
+public:
+    std::shared_ptr<Colbin::Entry> wall;
+};
+
 /* Common Gimmick */
 class CmnGmkNode : public NodeBase {
 public:

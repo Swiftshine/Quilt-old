@@ -5,6 +5,8 @@ void Editor::Canvas_Viewport() {
 	ImGui::Begin("Viewport");
 	ImGui::BeginChild("Viewport_Drop");
 	
+	UpdateCamera();
+
 	Viewport_ClickMenu();
 	RenderMapdata();
 	UpdateNodes();

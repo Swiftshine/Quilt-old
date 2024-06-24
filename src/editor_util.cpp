@@ -6,16 +6,21 @@ void Editor::UpdateCamera() {
 	Camera::Instance()->h = dim.x;
 	Camera::Instance()->w = dim.y;
 
+	if (!ImGui::IsWindowFocused()) return;
+
 	if (ImGui::IsKeyDown(ImGuiKey_UpArrow)) Camera::Instance()->y = (Camera::Instance()->y + Camera::Instance()->speed);
 	if (ImGui::IsKeyDown(ImGuiKey_LeftArrow)) Camera::Instance()->x = (Camera::Instance()->x + Camera::Instance()->speed);
 	if (ImGui::IsKeyDown(ImGuiKey_DownArrow)) Camera::Instance()->y = (Camera::Instance()->y - Camera::Instance()->speed);
 	if (ImGui::IsKeyDown(ImGuiKey_RightArrow)) Camera::Instance()->x = (Camera::Instance()->x - Camera::Instance()->speed);
+
 
 	if (ImGui::IsKeyDown(ImGuiKey_R)) {
 		Camera::Instance()->x = 0;
 		Camera::Instance()->y = 0;
 		Camera::Instance()->zoom = 1.0f;
 	}
+
+	if (!ImGui::IsWindowHovered()) return;
 
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -24,7 +29,6 @@ void Editor::UpdateCamera() {
 	}
 	else if (io.MouseWheel < 0.0f) {
 		Camera::Instance()->zoom -= 0.2f;
-
 		if (Camera::Instance()->zoom < CAMERA_ZOOM_MINIMUM) Camera::Instance()->zoom = CAMERA_ZOOM_MINIMUM;
 	}
 }

@@ -16,7 +16,11 @@ void Editor::UpdateNodes() {
 			node.Update();
 		}
 	} else {
-		DeselectNode();
+		if (selected_node) {
+			if (selected_node->GetType() == NodeBase::NodeType::CommonGimmick) {
+				DeselectNode();
+			}
+		}
 	}
 
 	if (showGimmicks) {
@@ -24,7 +28,11 @@ void Editor::UpdateNodes() {
 			node.Update();
 		}
 	} else {
-		DeselectNode();
+		if (selected_node) {
+			if (selected_node->GetType() == NodeBase::NodeType::Gimmick) {
+				DeselectNode();
+			}
+		}
 	}
 
 	if (showZones) {
@@ -33,12 +41,18 @@ void Editor::UpdateNodes() {
 		}
 	}
 	else {
-		DeselectNode();
+		if (selected_node) {
+			if (selected_node->GetType() == NodeBase::NodeType::Zone) {
+				DeselectNode();
+			}
+		}
 	}
 }
 
 void Editor::SelectNode(NodeBase* node) {
 	if (!node || selected_node == node) return;
+	if (selected_node) DeselectNode();
+
 	selected_node = node;
 	selected_node->Select();
 

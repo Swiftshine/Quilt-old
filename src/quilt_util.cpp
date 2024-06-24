@@ -204,6 +204,20 @@ bool Quilt::Util::IsRectClicked(Vec2f p1, Vec2f p2) {
 	return Quilt::Util::IsRectHovered(p1, p2) && ImGui::IsMouseClicked(ImGuiMouseButton_Left);
 }
 
+bool Quilt::Util::IsCircleHovered(Vec2f center, float radius) {
+	Vec2f mousePos = Quilt::Util::GetMouseWorldPos();
+
+	float a = std::pow(mousePos.x - center.x, 2);
+	float b = std::pow(mousePos.y - center.y, 2);
+
+	return a + b <= std::pow(radius, 2);
+}
+
+
+bool Quilt::Util::IsCircleClicked(Vec2f center, float radius) {
+	return Quilt::Util::IsCircleHovered(center, radius) && ImGui::IsMouseClicked(ImGuiMouseButton_Left);
+}
+
 Vec2f Quilt::Util::GetMouseWorldPos() {
 	ImVec2 mousePos = ImGui::GetIO().MousePos;
 
