@@ -35,55 +35,39 @@ void Editor::Toolbox_Visibility() {
 	b = showZones;
 	if (ImGui::Checkbox("Show Zones", &b)) showZones = b;
 
+	b = showEnemies;
+	if (ImGui::Checkbox("Show Enemies", &b)) showEnemies = b;
 }
 
 void Editor::Toolbox_StringSearch() {
-	ImGui::Begin("Common Gimmick Search");
+	ImGui::Begin("Search");
 
-	static std::vector<std::string> filtered_items;
-
-	ImGui::InputText("Search ##cmnGmkSearch", cmnGmkQuery, sizeof(cmnGmkQuery));
-
-	filtered_items.clear();
-
-	for (const auto& t : translations) {
-		std::string lower = Quilt::Util::ToLower(t.name);
-		if (lower.find(Quilt::Util::ToLower(cmnGmkQuery)) != std::string::npos) {
-			filtered_items.push_back(t.name);
-		}
+	if (ImGui::CollapsingHeader("Common Gimmicks")) {
+		StringSearch_CommonGimmick();
 	}
 
-	if (filtered_items.empty()) {
-		ImGui::Text("Common Gimmick name not found.");
+	if (ImGui::CollapsingHeader("Enemies")) {
+		StringSearch_Enemy();
 	}
-	else {
 
-		for (auto i = 0; i < filtered_items.size(); i++) {
-			std::string item = filtered_items[i];
+	
 
-			ImGui::PushID(i);
-			bool selected = query_selected_index == i;
+	/* enemy search */
 
-			if (ImGui::Selectable(item.c_str(), selected) && !ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
-				query_selected_index = i;
-			}
-
-			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-				ImGui::SetDragDropPayload("DRAG_DROP_ITEM", item.c_str(), item.length() + 1);
-				query_selected_index = i;
-				ImGui::Text(item.c_str());
-				ImGui::EndDragDropSource();
-			}
-
-			ImGui::PopID();
-		}
-	}
+	/* (assume i write the code here) */
 	ImGui::End();
 
-	if (query_selected_index != -1) {
-		if (query_selected_index > filtered_items.size() - 1) {
-			query_selected_index = filtered_items.size() - 1;
+	if (search_cmnGmk_index != -1) {
+		if (search_cmnGmk_index > search_cmnGmk_filtered_items.size() - 1) {
+			search_cmnGmk_index = search_cmnGmk_filtered_items.size() - 1;
 		}
-		query_selected_label = filtered_items[query_selected_index];
+		search_cmnGmk_label = search_cmnGmk_filtered_items[search_cmnGmk_index];
+	}
+
+	if (search_enemy_index != -1) {
+		if (search_enemy_index > search_enemy_filtered_items.size() - 1) {
+			search_enemy_index = search_enemy_filtered_items.size() - 1;
+		}
+		search_enemy_label = search_enemy_filtered_items[search_enemy_index];
 	}
 }

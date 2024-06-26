@@ -6,3 +6,4 @@ Debug/
 *.vcx*
 *.ini
 enc_temp_folder/
+temp/

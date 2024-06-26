@@ -40,6 +40,7 @@ bool Editor::Setup() {
 
     // load translations, parameters, etc
     LoadTranslations();
+    LoadEnemyTranslations();
     LoadParams();
 
     running = true;
@@ -60,7 +61,6 @@ void Editor::Run() {
 
         ImGui::DockSpaceOverViewport(ImGuiDockNodeFlags_PassthruCentralNode);
 
-        Process();
         Menu();
         Tabs();
 
@@ -91,8 +91,4 @@ void Editor::Cleanup() {
 
     glfwDestroyWindow(window);
     glfwTerminate();
-}
-
-void Editor::Process() {
-    
 }

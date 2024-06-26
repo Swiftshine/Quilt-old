@@ -16,6 +16,7 @@
 #include "quilt/quilt_camera.h"
 #include "quilt/quilt_constant.h"
 #include "quilt/quilt_debug.h"
+#include "quilt/quilt_settings.h"
 #include "quilt/quilt_util.h"
 /* Other */
 // (imgui was already #included in quilt_util)

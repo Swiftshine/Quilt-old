@@ -17,3 +17,9 @@ struct GmkParam {
 	std::string description;
 	std::vector<IntLabelPair> int_dropdown;
 };
+
+struct EnemyTranslation {
+	std::string id;
+	std::string name;
+	std::string note;
+};

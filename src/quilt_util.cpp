@@ -64,16 +64,21 @@ void Quilt::Util::DrawLine(Vec2f p1, Vec2f p2, RGBA col) {
 	draw_list->AddLine(point1, point2, IM_COL32(col.r, col.g, col.b, col.a), 1.0f);
 }
 
-void Quilt::Util::DrawLines(std::vector<Vec2f>& points, RGBA col) {
+void Quilt::Util::DrawLines(std::vector<Vec2f>& points, RGBA col, bool swap) {
 	if (points.size() < 2) return; // not enough points to draw lines
 
 
 	for (auto i = 0; i < points.size() - 1; i++) {
-		Quilt::Util::DrawLine(points[i], points[i + 1], col);
+		if (swap) {
+			Quilt::Util::DrawLine(points[i].GetSwap(), points[i + 1].GetSwap(), col);
+		}
+		else {
+			Quilt::Util::DrawLine(points[i], points[i + 1], col);
+		}
 	}
 }
 
-void Quilt::Util::DrawRect(Vec2f pos, float w, float h, RGBA col) {
+void Quilt::Util::DrawRect(Vec2f pos, float w, float h, RGBA col, bool fill) {
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
 	const float zoom = Camera::Instance()->zoom;
@@ -86,10 +91,14 @@ void Quilt::Util::DrawRect(Vec2f pos, float w, float h, RGBA col) {
 	ImVec2 p3 = ImVec2((pos.x + w) * zoom + cam_x, (-(pos.y + h) * zoom) + cam_y);
 	ImVec2 p4 = ImVec2(pos.x * zoom + cam_x, (-(pos.y + h) * zoom) + cam_y);
 
-	draw_list->AddQuad(p1, p2, p3, p4, IM_COL32(col.r, col.g, col.b, col.a));
+	if (fill) {
+		draw_list->AddQuadFilled(p1, p2, p3, p4, IM_COL32(col.r, col.g, col.b, col.a));
+	} else {
+		draw_list->AddQuad(p1, p2, p3, p4, IM_COL32(col.r, col.g, col.b, col.a));
+	}
 }
 
-void Quilt::Util::DrawRect(Vec2f pos1, Vec2f pos2, RGBA col) {
+void Quilt::Util::DrawRect(Vec2f pos1, Vec2f pos2, RGBA col, bool fill) {
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
 
@@ -102,21 +111,22 @@ void Quilt::Util::DrawRect(Vec2f pos1, Vec2f pos2, RGBA col) {
 	ImVec2 topRight = ImVec2(bottomRight.x, topLeft.y);
 	ImVec2 bottomLeft = ImVec2(topLeft.x, bottomRight.y);
 
-	draw_list->AddQuad(topLeft, topRight, bottomRight, bottomLeft, IM_COL32(col.r, col.g, col.b, col.a));
+	if (fill) {
+		draw_list->AddQuadFilled(topLeft, topRight, bottomRight, bottomLeft, IM_COL32(col.r, col.g, col.b, col.a));
+	}
+	else {
+		draw_list->AddQuad(topLeft, topRight, bottomRight, bottomLeft, IM_COL32(col.r, col.g, col.b, col.a));
+	}
 }
 
 void Quilt::Util::DrawText(Vec2f pos, std::string str) {
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 	const float zoom = Camera::Instance()->zoom;
 	const float cam_x = Camera::Instance()->x;
 	const float cam_y = Camera::Instance()->y;
-
-	ImVec2 origPos = ImGui::GetCursorPos();
-
-	ImGui::SetCursorPos(ToWorldImVec2(pos));
-	ImGui::Text(str.c_str());
-	ImGui::SetCursorPos(origPos);
+	ImVec2 textPos = ImVec2(pos.x * zoom + cam_x, (-pos.y * zoom) + cam_y);
+	draw_list->AddText(textPos, IM_COL32(255, 255, 255, 255), str.c_str());
 }
-
 void Quilt::Util::DrawCircle(Vec2f pos, float radius, RGBA col) {
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
@@ -126,6 +136,8 @@ void Quilt::Util::DrawCircle(Vec2f pos, float radius, RGBA col) {
 
 	ImVec2 center = ToWorldImVec2(pos);
 	ImU32 color = IM_COL32(col.r, col.g, col.b, col.a);
+
+	radius = zoom / radius;
 
 	draw_list->AddCircle(center, radius, color, CIRCLE_SEGMENT_COUNT);
 }
@@ -205,12 +217,15 @@ bool Quilt::Util::IsRectClicked(Vec2f p1, Vec2f p2) {
 }
 
 bool Quilt::Util::IsCircleHovered(Vec2f center, float radius) {
+	if (!ImGui::IsWindowHovered() || !ImGui::IsWindowFocused()) return false;
 	Vec2f mousePos = Quilt::Util::GetMouseWorldPos();
+	float zoom = Camera::Instance()->zoom;
 
-	float a = std::pow(mousePos.x - center.x, 2);
-	float b = std::pow(mousePos.y - center.y, 2);
+	float a = std::pow(mousePos.x - (center.x * zoom), 2);
+	float b = std::pow(mousePos.y - (center.y * zoom), 2);
 
-	return a + b <= std::pow(radius, 2);
+	bool ret = a + b <= std::pow(radius * zoom, 2);
+	return ret;
 }
 
 

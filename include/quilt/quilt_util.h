@@ -19,9 +19,9 @@ namespace Quilt::Util {
     std::string ToLower(const std::string& input);
 
     void DrawLine(Vec2f p1, Vec2f p2, RGBA col);
-    void DrawLines(std::vector<Vec2f>& points, RGBA col);
-    void DrawRect(Vec2f pos, float w, float h, RGBA col);
-    void DrawRect(Vec2f pos1, Vec2f pos2, RGBA col);
+    void DrawLines(std::vector<Vec2f>& points, RGBA col, bool swap = false);
+    void DrawRect(Vec2f pos, float w, float h, RGBA col, bool fill = false);
+    void DrawRect(Vec2f pos1, Vec2f pos2, RGBA col, bool fill = false);
     void DrawText(Vec2f pos, std::string str);
     void DrawCircle(Vec2f pos, float radius, RGBA col);
     void DrawTooltip(std::string str, bool itemCheck = true);

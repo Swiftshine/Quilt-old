@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root>
+    <!-- special -->
+    <enemy id="HELP_ROBOT" name="Metamortex" note="Allows Kirby to transform."/>
+    <!-- enemies -->
+    <enemy id="ENEMY02" name="Uniclod" note=""/>
+    <enemy id="ENEMY03" name="Buttonbee" note=""/>
+
+    <enemy id="ENEMY05" name="Sulkworm" note=""/>
+    <enemy id="ENEMY06" name="Dandan" note=""/>
+    
+    <enemy id="ENEMY12" name="Candlemander" note=""/>
+
+    <enemy id="ENEMY25" name="Gator" note=""/>
+    <enemy id="ENEMY26" name="Waddle Dee" note=""/>
+    <enemy id="ENEMY27" name="Waddle Dee (Spear)" note=""/>
+
+    <enemy id="ENEMY29" name="Ooki" note=""/>
+
+    <enemy id="ENEMY32" name="Scarfy" note=""/>
+    <enemy id="ENEMY33" name="Blipper" note=""/>
+
+    <enemy id="ENEMY35" name="Bronto Burt" note=""/>
+
+    <enemy id="ENEMY38" name="Waddle Dee (Bow)" note=""/>
+    <enemy id="ENEMY39" name="Waddle Dee (Parasol)" note=""/>
+    <enemy id="ENEMY40" name="Chilly" note=""/>
+    <enemy id="ENEMY41" name="Waddle Dee (Balloons)" note=""/>
+
+    <enemy id="ENEMY43" name="Waddle Dee (Sleeping)" note=""/>
+
+    <enemy id="ENEMY45" name="Cyclod" note=""/>
+    <enemy id="ENEMY46" name="Buttonfly" note=""/>
+
+    <enemy id="ENEMY60" name="Dropso" note=""/>
+    
+    <enemy id="ENEMY115" name="Wicked Willow" note=""/>
+</root>

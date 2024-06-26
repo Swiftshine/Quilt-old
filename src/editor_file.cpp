@@ -75,9 +75,16 @@ void Editor::SetupFile() {
 	for (auto i = 0; i < Swap32(mapHeader->wallCount); i++) {
 		Colbin::Entry wall;
 		file.read((char*)&wall, sizeof(wall));
-		walls.push_back(wall);
+		nodes_wall.emplace_back(wall);
 	}
 
+	file.seekg(Swap32(mapHeader->labeledWallOffs));
+
+	for (auto i = 0; i < Swap32(mapHeader->labeledWallCount); i++) {
+		Mapdata::Mapbin::LabeledWall wall;
+		file.read((char*)&wall, sizeof(wall));
+		nodes_labeledWall.emplace_back(wall);
+	}
 
 	/* common gimmicks */
 	file.seekg(Swap32(mapHeader->commonGmkOffs));
@@ -105,18 +112,16 @@ void Editor::SetupFile() {
 		Mapdata::Mapbin::Path path;
 		file.read((char*)&path, sizeof(path));
 
-		paths.push_back(path);
 
 		std::vector<Vec2f> line;
 
 		for (auto j = 0; j < Swap32(path.numPoints); j++) {
 			Vec2f point;
 			file.read((char*)&point, sizeof(point));
-			point.Swap();
 			line.push_back(point);
 		}
 
-		lines_path.push_back(line);
+		nodes_path.emplace_back(path, line);
 	}
 
 	/* zones */
@@ -141,6 +146,25 @@ void Editor::SetupFile() {
 		bytes_cmnGmk.push_back(bytes);
 	}
 	open = true;
+	file.close();
+
+	/* enemies are stored in a separate file fsr */
+	name = folder_path + filenames[selected_file_index] + ".enbin";
+	file.open(name, std::ios::in | std::ios::binary);
+	if (!file.is_open()) {
+		Quilt::Debug::Error("Failed to open file ", filenames[selected_file_index] + ".enbin");
+		return;
+	}
+
+	file.read((char*)enHeader, sizeof(Mapdata::Enbin::Header));
+
+	for (auto i = 0; i < Swap32(enHeader->numEntries); i++) {
+		Mapdata::Enbin::EnemyEntry enemy;
+		file.read((char*)&enemy, sizeof(enemy));
+		nodes_enemy.emplace_back(enemy);
+	}
+
+	// todo - handle whatever is at the footer
 	file.close();
 }
 

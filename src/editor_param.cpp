@@ -197,6 +197,56 @@ void Editor::LoadTranslations() {
 	}
 }
 
+void Editor::LoadEnemyTranslations() {
+	std::ifstream file("res/param/enemy.xml");
+	if (!file.is_open()) {
+		Quilt::Debug::Error("Failed to load enemy.xml!");
+		return;
+	}
+
+	enemy_translation_xml_contents.clear();
+	enemy_translations.clear();
+
+	std::stringstream buf;
+	buf << file.rdbuf();
+	file.close();
+
+	enemy_translation_xml_contents = buf.str();
+
+	// parse xml
+
+	rapidxml::xml_document<>* doc = new rapidxml::xml_document<>;
+	if (!doc) {
+		Quilt::Debug::Error("Failed to create rapidxml doc.");
+		return;
+	}
+
+	try {
+		doc->parse<0>(enemy_translation_xml_contents.data());
+		rapidxml::xml_node<>* root = doc->first_node("root");
+		if (!root) {
+			Quilt::Debug::Error("Root node 'root' not found!");
+			delete doc;
+			return;
+		}
+
+		// go through enemy names
+
+		for (rapidxml::xml_node<>* en_xml_node = root->first_node("enemy"); en_xml_node; en_xml_node = en_xml_node->next_sibling("enemy")) {
+			EnemyTranslation et;
+			et.id = en_xml_node->first_attribute("id")->value();
+			et.name = en_xml_node->first_attribute("name")->value();
+			et.note = en_xml_node->first_attribute("note")->value();
+			enemy_translations.push_back(et);
+		}
+
+		delete doc;
+	} catch (std::exception& e) {
+		Quilt::Debug::Exception(e.what());
+		delete doc;
+	}
+}
+
 void Editor::ClearParams() {
 	params_general.clear();
 	params_cmnGmk.clear();
@@ -414,10 +464,36 @@ void Editor::Param_Zone() {
 	ImGui::End();
 }
 
+void Editor::Param_Enemy() {
+	ImGui::Begin("Enemy Parameters");
+	EnemyNode* node = reinterpret_cast<EnemyNode*>(selected_node);
+
+	std::string dummy = GetEnemyNameFromID(node->enemy->name);
+	if (ImGui::Selectable(dummy.data())) {
+		ImGui::SetClipboardText(dummy.data());
+	}
+	Quilt::Util::DrawTooltip("Click to copy name to clipboard.");
+
+	node->enemy->position1.Swap();
+	ImGui::InputFloat("X Position", &node->enemy->position1.x, 0.1f, 1.0f);
+	ImGui::InputFloat("Y Position", &node->enemy->position1.y, 0.1f, 1.0f);
+	node->enemy->position1.Swap();
+
+	ImGui::InputText("Behavior", node->enemy->behavior, 0x20);
+	ImGui::InputText("Path Name", node->enemy->pathName, 0x20);
+	ImGui::InputText("Bead Type", node->enemy->beadType, 0x10);
+	ImGui::InputText("Bead Color", node->enemy->beadColor, 0x10);
+	ImGui::InputText("Direction", node->enemy->direction, 0x10);
+	ImGui::InputText("Orientation", node->enemy->orientation, 0x10);
+
+	// proper enemy parameters are unk at the moment
+	ImGui::End();
+}
+
 std::string Editor::GetCommonGimmickNameFromIndex(size_t index) {
 	if ((int)bytes_cmnGmk.size() - 1 <= (int)index) {
 		// need to add one
-		std::string name = query_selected_label;
+		std::string name = search_cmnGmk_label;
 		for (const auto& t : translations) {
 			if (t.name == name) {
 				bytes_cmnGmk.push_back(Quilt::Util::HexToBytes(t.hex));
@@ -476,4 +552,26 @@ size_t Editor::GetIndexFromName(std::string name) {
 	// at all because the names are being pulled from the
 	// translation entries anyways)
 	return 0;
+}
+
+std::string Editor::GetEnemyNameFromID(std::string id) {
+	// id is in the format of "ENEMYXX" where XX is a two digit number
+	for (const auto& t : enemy_translations) {
+		if (t.id == id) {
+			return t.name;
+		}
+	}
+
+	// if not present then simply return the id to indicate that it's missing
+	return id;
+}
+
+std::string Editor::GetEnemyIDFromName(std::string name) {
+	for (const auto& t : enemy_translations) {
+		if (t.name == name) {
+			return t.id;
+		}
+	}
+
+	return "NONE"; // this shouldn't happen
 }

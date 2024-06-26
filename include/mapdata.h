@@ -20,6 +20,8 @@ namespace Colbin {
         u32 colbinTypeIndex;
     };
 
+    using Wall = Entry;
+
     struct Footer {
         u32 nameCount;
         /* present is a char[nameCount][0x20] */
@@ -35,8 +37,8 @@ namespace Mapbin {
 		Vec2f boundsEnd;
 		u32 wallCount;
 		u32 wallOffs;
-		u32 wall2Count;
-		u32 wall2Offs;
+		u32 labeledWallCount;
+		u32 labeledWallOffs;
 		u32 commonGmkCount;
 		u32 commonGmkOffs;
 		u32 gmkCount;
@@ -60,7 +62,9 @@ namespace Mapbin {
         u32 labelIndex;
     };
 
-    static_assert(sizeof(Mapdata::Mapbin::DataSegLabel) == 0x24, "data seg label is wrong size");
+    using LabeledWall = DataSegLabel;
+
+    static_assert(sizeof(Mapdata::Mapbin::LabeledWall) == 0x24, "data seg label is wrong size");
 
     struct CommonParam {
         int ints[3];

@@ -66,6 +66,7 @@ struct Vec3f {
 };
 
 struct Vec2f {
+    Vec2f(float val) { x = val; y = val; }
     Vec2f() { x = 0; y = 0; }
     Vec2f(float nX, float nY) { x = nX; y = nY; }
     Vec2f(Vec3f src) { x = src.x; y = src.y; }

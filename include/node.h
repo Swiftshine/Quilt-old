@@ -10,10 +10,12 @@ public:
     static enum NodeType {
         Base = 0,
         Wall,
-        Wall2,
+        LabeledWall,
         CommonGimmick,
         Gimmick,
+        Path,
         Zone,
+        Enemy,
     };
 public:
 	NodeBase() { }
@@ -41,6 +43,7 @@ public:
     WallNode(Colbin::Entry& newWall) {
         wall = std::make_shared<Colbin::Entry>();
         *wall = newWall;
+        type = NodeType::Wall;
     }
 
     ~WallNode() { }
@@ -48,6 +51,33 @@ public:
     virtual void Update() override;
 public:
     std::shared_ptr<Colbin::Entry> wall;
+private:
+    bool isDragOffsInited1 = false;
+    bool isDragOffsInited2 = false;
+    Vec2f dragOffs1 = Vec2f();
+    Vec2f dragOffs2 = Vec2f();
+};
+
+/* Labeled Wall */
+
+class LabeledWallNode : public NodeBase {
+public:
+    LabeledWallNode(Mapdata::Mapbin::LabeledWall& newWall) {
+        wall = std::make_shared<Mapdata::Mapbin::LabeledWall>();
+        *wall = newWall;
+        type = NodeType::LabeledWall;
+    }
+
+    ~LabeledWallNode() { }
+
+    virtual void Update() override;
+public:
+    std::shared_ptr<Mapdata::Mapbin::LabeledWall> wall;
+private:
+    bool isDragOffsInited1 = false;
+    bool isDragOffsInited2 = false;
+    Vec2f dragOffs1 = Vec2f();
+    Vec2f dragOffs2 = Vec2f();
 };
 
 /* Common Gimmick */
@@ -65,6 +95,7 @@ public:
 public:
     std::shared_ptr<Mapdata::Mapbin::CommonGimmick> cmnGmk;
 };
+
 /* Gimmick */
 class GmkNode : public NodeBase {
 public:
@@ -82,11 +113,45 @@ public:
 	std::shared_ptr<Mapdata::Mapbin::Gimmick> gmk;
 };
 
+/* Path */
+class PathNode : public NodeBase {
+public:
+    PathNode(Mapdata::Mapbin::Path& newPath, std::vector<Vec2f>& newPoints) {
+        path = std::make_shared<Mapdata::Mapbin::Path>();
+        *path = newPath;
+        points = newPoints;
+        type = NodeType::Path;
+
+        dragOffsInited.resize(points.size(), false);
+        dragOffsets.resize(points.size(), Vec2f());
+    }
+
+    ~PathNode() { }
+
+    virtual void Update() override;
+
+    void AddPoint() {
+        
+    }
+
+    void RemovePoint() {
+
+    }
+
+public:
+    std::shared_ptr<Mapdata::Mapbin::Path> path;
+private:
+    std::vector<Vec2f> points;
+    std::vector<bool> dragOffsInited;
+    std::vector<Vec2f> dragOffsets;
+};
+
+/* Zone */
 class ZoneNode : public NodeBase {
 public:
     ZoneNode(Mapdata::Mapbin::Zone& newZone) {
         type = NodeType::Zone;
-        zone = std::make_shared < Mapdata::Mapbin::Zone>();
+        zone = std::make_shared<Mapdata::Mapbin::Zone>();
         *zone = newZone;
     }
 
@@ -95,4 +160,20 @@ public:
     virtual void Update() override;
 public:
     std::shared_ptr<Mapdata::Mapbin::Zone> zone;
+};
+
+/* Enemy */
+class EnemyNode : public NodeBase {
+public:
+    EnemyNode(Mapdata::Enbin::EnemyEntry& newEnemy) {
+        enemy = std::make_shared<Mapdata::Enbin::EnemyEntry>();
+        type = NodeType::Enemy;
+        *enemy = newEnemy;
+    }
+
+    ~EnemyNode() { }
+
+    virtual void Update() override;
+public:
+    std::shared_ptr<Mapdata::Enbin::EnemyEntry> enemy;
 };

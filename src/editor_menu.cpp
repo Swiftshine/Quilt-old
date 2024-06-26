@@ -18,6 +18,7 @@ void Editor::Menu() {
 
 		if (ImGui::MenuItem("Reload Translations")) {
 			LoadTranslations();
+			LoadEnemyTranslations();
 		}
 
 		ImGui::EndMenu();
