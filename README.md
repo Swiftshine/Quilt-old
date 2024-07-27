@@ -1,5 +1,5 @@
 # Quilt
-A (work in progress) Kirby's Epic Yarn level editor.
+A Kirby's Epic Yarn modding tool.
 
 # Credits
 ImGui - UI
