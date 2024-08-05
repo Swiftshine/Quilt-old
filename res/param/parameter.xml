@@ -5,18 +5,18 @@
     <gimmick name="START" note="The player's starting position."/>
 
     <gimmick name="StageRankSetting" note="A group of settings related to the ranking at the end of the level.">
-        <parameter title="Bronze Threshold" type="int" slot="0" description="The number of beads necessary for a bronze medal."/>
-        <parameter title="Silver Threshold" type="int" slot="1" description="The number of beads necessary for a silver medal."/>
-        <parameter title="Gold Threshold"   type="int" slot="2" description="The number of beads necessary for a gold medal."/>
+        <parameter title="Bronze Threshold" data_type="int" slot="0" description="The number of beads necessary for a bronze medal."/>
+        <parameter title="Silver Threshold" data_type="int" slot="1" description="The number of beads necessary for a silver medal."/>
+        <parameter title="Gold Threshold"   data_type="int" slot="2" description="The number of beads necessary for a gold medal."/>
     </gimmick>
 
     <gimmick name="WoolBridge" note="A wool bridge.">
-        <parameter title="Length" type="float" slot="0" description=""/>
+        <parameter title="Length" data_type="float" slot="0" description=""/>
     </gimmick>
 
     <!-- Common Gimmicks -->
     <common qid="CLOTH_TURN_COMMON" note="A piece of cloth that hides something.">
-        <parameter title="Texture" type="dropdown_int" slot="0" description="The texture the cloth will use.">
+        <parameter title="Texture" data_type="dropdown_int" slot="0" description="The texture the cloth will use.">
             <dropdown>
                 <item value="0" label="Square"/>
                 <item value="1" label="Door"/>
@@ -28,16 +28,33 @@
     </common>
 
     <common qid="SIMPLE_MDL_GMK" note="This gimmick loads a model.">
-        <parameter title="Resource Name" type="string" slot="-1" description="The Good-Feel Archive that will be loaded."/>
+        <parameter title="Resource Name" data_type="string" slot="-1" description="The Good-Feel Archive that will be loaded."/>
     </common>
 
     <common qid="ENEMY_GENERATOR_1" note="This gimmick spawns enemies.">
-        <parameter title="Enemy Type" type="string" slot="-1" description="The enemy that will be spawned."/> 
+        <parameter title="Enemy Type" data_type="string" slot="-1" description="The enemy that will be spawned."/> 
     </common>
 
+    <!-- Paths -->
+    <path name="Course_00" note="Race Paths">
+        <parameter title="unk 1" data_type="string" slot="0" description=""/>
+        <parameter title="unk 2" data_type="string" slot="1" description=""/>
+        <parameter title="unk 3" data_type="string" slot="2" description=""/>
+    </path>
+    <!-- Race Course Info -->
+    <race name="Course_00" note="Race information.">
+        <parameter title="Point Type" data_type="dropdown_int" slot="0" description="">
+            <dropdown>
+                <item value="0" label="Midpoint"/>
+                <item value="1" label="Start"/>
+                <item value="2" label="End"/>
+            </dropdown>
+        </parameter>
+        <parameter title="Completion Marker" data_type="float" slot="0" description="Indicates how much of the course has been completed to this point."/>
+    </race>
     <!-- Zones -->
     <zone name="LADDER" note="A ladder.">
-        <parameter title="Rung Color" type="dropdown_int" slot="0" description="The color of the ladder's rungs.">
+        <parameter title="Rung Color" data_type="dropdown_int" slot="0" description="The color of the ladder's rungs.">
             <dropdown>
                 <item value="0" label="Orange"/>
                 <item value="1" label="Orange"/>
@@ -51,15 +68,11 @@
     </zone>
 
     <zone name="MissionEvent" note="">
-        <parameter title="unk 0" type="int" slot="0" description=""/>
-        <parameter title="unk 1" type="int" slot="1" description=""/>
+        <parameter title="Event ID?" data_type="int" slot="0" description="The target event ID?"/>
+        <parameter title="Value?" data_type="int" slot="1" description="The value to be assigned to the target event?"/>
     </zone>
 
     <zone name="PlayerAreaSwitch" note="">
-        <parameter title="Target" type="string" slot="0" description="The name of the area it will switch to."/>
-    </zone>
-
-    <zone name="Course_00" note="">
-        <parameter title="Path Name" type="string" slot="0" description="The target path name."/>
+        <parameter title="Target" data_type="string" slot="0" description="The name of the area it will switch to."/>
     </zone>
 </root>

@@ -13,25 +13,39 @@ void Editor::Canvas_Viewport() {
 
 	if (selected_node) {
 		switch (selected_node->GetType()) {
-		case NodeBase::NodeType::Gimmick: {
-			Param_Gimmick();
-			break;
-		}
+			case NodeBase::NodeType::LabeledWall: {
+				Param_LabeledWall();
+				break;
+			}
 
-		case NodeBase::NodeType::CommonGimmick: {
-			Param_CommonGimmick();
-			break;
-		}
+			case NodeBase::NodeType::Gimmick: {
+				Param_Gimmick();
+				break;
+			}
 
-		case NodeBase::NodeType::Zone: {
-			Param_Zone();
-			break;
-		}
+			case NodeBase::NodeType::Path: {
+				Param_Path();
+				break;
+			}
+			case NodeBase::NodeType::CommonGimmick: {
+				Param_CommonGimmick();
+				break;
+			}
 
-		case NodeBase::NodeType::Enemy: {
-			Param_Enemy();
-			break;
-		}
+			case NodeBase::NodeType::Zone: {
+				Param_Zone();
+				break;
+			}
+
+			case NodeBase::NodeType::Enemy: {
+				Param_Enemy();
+				break;
+			}
+
+			case NodeBase::NodeType::RaceCourseInfo: {
+				Param_RaceCourseInfo();
+				break;
+			}
 		}
 	}
 	
@@ -75,6 +89,10 @@ void Editor::Viewport_ClickMenu() {
 
 			if (ImGui::MenuItem("Gimmick")) {
 				CreateNode(NodeBase::NodeType::Gimmick);
+			}
+
+			if (ImGui::MenuItem("Race Course Info")) {
+				CreateNode(NodeBase::NodeType::RaceCourseInfo);
 			}
 
 			if (ImGui::MenuItem("Zone")) {

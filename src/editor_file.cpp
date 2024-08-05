@@ -124,6 +124,15 @@ void Editor::SetupFile() {
 		nodes_path.emplace_back(path, line);
 	}
 
+	/* race course info */
+	file.seekg(Swap32(mapHeader->courseInfoOffs));
+
+	for (auto i = 0; i < Swap32(mapHeader->courseInfoCount); i++) {
+		Mapdata::Mapbin::RaceCourseInfo rcinfo;
+		file.read((char*)&rcinfo, sizeof(rcinfo));
+		nodes_rcinfo.emplace_back(rcinfo);
+	}
+
 	/* zones */
 	file.seekg(Swap32(mapHeader->zoneOffs));
 

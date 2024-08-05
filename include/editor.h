@@ -78,8 +78,10 @@ private:
     void Param_CommonGimmick();
     void Param_Gimmick();
     void Param_Zone();
+    void Param_RaceCourseInfo();
     void Param_Enemy();
-    
+    void Param_Path();
+    void Param_LabeledWall();
     // Camera
     void UpdateCamera();
 
@@ -126,14 +128,15 @@ private:
     std::string enemy_translation_xml_contents;
     
     // i call this "general" because other structures use the same parameter pack
-    std::vector<std::pair<NameNotePair, std::vector<GmkParam>>> params_general;
-    std::vector<std::pair<QIDNotePair, std::vector<GmkParam>>> params_cmnGmk;
+    std::vector<std::pair<NameNotePair, std::vector<Param>>> params_general;
+    std::vector<std::pair<QIDNotePair, std::vector<Param>>> params_cmnGmk;
     // -> visibility options
     bool showBounds = true;
     bool showWalls = true;
     bool showCommon = true;
     bool showGimmicks = true;
     bool showPaths = true;
+    bool showRCInfo = true;
     bool showZones = true;
     bool showEnemies = true;
 
@@ -167,6 +170,7 @@ private:
     std::vector<CmnGmkNode> nodes_cmnGmk;
     std::vector<GmkNode> nodes_gmk;
     std::vector<PathNode> nodes_path;
+    std::vector<RaceCourseInfoNode> nodes_rcinfo;
     std::vector<ZoneNode> nodes_zone;
     std::vector<EnemyNode> nodes_enemy;
 

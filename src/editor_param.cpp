@@ -37,67 +37,39 @@ void Editor::LoadParams() {
 			return;
 		}
 
-		// go through gimmicks
+		// go through stuff
 
-		for (rapidxml::xml_node<>* gmk_xml_node = root->first_node("gimmick"); gmk_xml_node; gmk_xml_node = gmk_xml_node->next_sibling("gimmick")) {
-			std::string gmk_name = gmk_xml_node->first_attribute("name")->value();
-			std::string gmk_note = gmk_xml_node->first_attribute("note")->value();
+		for (auto type : {"gimmick", "zone", "race", "path"}) {
+			for (rapidxml::xml_node<>* type_xml_node = root->first_node(type); type_xml_node; type_xml_node = type_xml_node->next_sibling(type)) {
+				std::string type_name = type_xml_node->first_attribute("name")->value();
+				std::string type_note = type_xml_node->first_attribute("note")->value();
 
-			NameNotePair string_pair = std::make_pair(gmk_name, gmk_note);
+				NameNotePair string_pair = std::make_pair(type_name, type_note);
 
-			std::vector<GmkParam> params;
-			
-			for (rapidxml::xml_node<>* param_xml_node = gmk_xml_node->first_node("parameter"); param_xml_node; param_xml_node = param_xml_node->next_sibling("parameter")) {
-				GmkParam param;
-				param.title = param_xml_node->first_attribute("title")->value();
-				param.type = param_xml_node->first_attribute("type")->value();
-				param.slot = std::stoi(param_xml_node->first_attribute("slot")->value());
-				param.description = param_xml_node->first_attribute("description")->value();
+				std::vector<Param> params;
 
-				if ("dropdown_int" == param.type) {
-					rapidxml::xml_node<>* dropdown_node = param_xml_node->first_node("dropdown");
+				for (rapidxml::xml_node<>* param_xml_node = type_xml_node->first_node("parameter"); param_xml_node; param_xml_node = param_xml_node->next_sibling("parameter")) {
+					Param param;
+					param.owner_type = type;
+					param.title = param_xml_node->first_attribute("title")->value();
+					param.data_type = param_xml_node->first_attribute("data_type")->value();
+					param.slot = std::stoi(param_xml_node->first_attribute("slot")->value());
+					param.description = param_xml_node->first_attribute("description")->value();
 
-					for (rapidxml::xml_node<>* item = dropdown_node->first_node("item"); item; item = item->next_sibling("item")) {
-						int val = std::stoi(item->first_attribute("value")->value());
-						std::string label = item->first_attribute("label")->value();
-						param.int_dropdown.emplace_back(val, label);
+					if ("dropdown_int" == param.data_type) {
+						rapidxml::xml_node<>* dropdown_node = param_xml_node->first_node("dropdown");
+
+						for (rapidxml::xml_node<>* item = dropdown_node->first_node("item"); item; item = item->next_sibling("item")) {
+							int val = std::stoi(item->first_attribute("value")->value());
+							std::string label = item->first_attribute("label")->value();
+							param.int_dropdown.emplace_back(val, label);
+						}
 					}
+
+					params.push_back(param);
 				}
-
-				params.push_back(param);
+				params_general.emplace_back(string_pair, params);
 			}
-			params_general.emplace_back(string_pair, params);
-		}
-
-		// go through zones
-		for (rapidxml::xml_node<>* zone_xml_node = root->first_node("zone"); zone_xml_node; zone_xml_node = zone_xml_node->next_sibling("zone")) {
-			std::string zone_name = zone_xml_node->first_attribute("name")->value();
-			std::string zone_note = zone_xml_node->first_attribute("note")->value();
-
-			NameNotePair string_pair = std::make_pair(zone_name, zone_note);
-
-			std::vector<GmkParam> params;
-
-			for (rapidxml::xml_node<>* param_xml_node = zone_xml_node->first_node("parameter"); param_xml_node; param_xml_node = param_xml_node->next_sibling("parameter")) {
-				GmkParam param;
-				param.title = param_xml_node->first_attribute("title")->value();
-				param.type = param_xml_node->first_attribute("type")->value();
-				param.slot = std::stoi(param_xml_node->first_attribute("slot")->value());
-				param.description = param_xml_node->first_attribute("description")->value();
-
-				if ("dropdown_int" == param.type) {
-					rapidxml::xml_node<>* dropdown_node = param_xml_node->first_node("dropdown");
-
-					for (rapidxml::xml_node<>* item = dropdown_node->first_node("item"); item; item = item->next_sibling("item")) {
-						int val = std::stoi(item->first_attribute("value")->value());
-						std::string label = item->first_attribute("label")->value();
-						param.int_dropdown.emplace_back(val, label);
-					}
-				}
-
-				params.push_back(param);
-			}
-			params_general.emplace_back(string_pair, params);
 		}
 
 		// go through common gimmicks
@@ -107,16 +79,17 @@ void Editor::LoadParams() {
 
 			QIDNotePair string_pair = std::make_pair(qid, note);
 
-			std::vector<GmkParam> params;
+			std::vector<Param> params;
 
 			for (rapidxml::xml_node<>* param_xml_node = cmnGmk_xml_node->first_node("parameter"); param_xml_node; param_xml_node = param_xml_node->next_sibling("parameter")) {
-				GmkParam param;
+				Param param;
+				param.owner_type = "common";
 				param.title = param_xml_node->first_attribute("title")->value();
-				param.type = param_xml_node->first_attribute("type")->value();
+				param.data_type = param_xml_node->first_attribute("data_type")->value();
 				param.slot = std::stoi(param_xml_node->first_attribute("slot")->value());
 				param.description = param_xml_node->first_attribute("description")->value();
 
-				if ("dropdown_int" == param.type) {
+				if ("dropdown_int" == param.data_type) {
 					rapidxml::xml_node<>* dropdown_node = param_xml_node->first_node("dropdown");
 
 					for (rapidxml::xml_node<>* item = dropdown_node->first_node("item"); item; item = item->next_sibling("item")) {
@@ -252,6 +225,12 @@ void Editor::ClearParams() {
 	params_cmnGmk.clear();
 }
 
+void Editor::Param_LabeledWall() {
+	ImGui::Begin("Labeled Wall Parameters");
+
+	ImGui::End();
+}
+
 
 void Editor::Param_CommonGimmick() {
 	ImGui::Begin("Common Gimmick Parameters");
@@ -272,7 +251,7 @@ void Editor::Param_CommonGimmick() {
 	// check for params
 	bool found = false;
 
-	std::vector<GmkParam> params;
+	std::vector<Param> params;
 	
 	std::string qid = GetQIDFromIndex(nIndex);
 
@@ -291,12 +270,12 @@ void Editor::Param_CommonGimmick() {
 	}
 
 	for (const auto& param : params) {
-		if ("string" == param.type) {
+		if ("string" == param.data_type) {
 			ImGui::InputText(param.title.c_str(), node->cmnGmk->params.string1, 32);
 			Quilt::Util::DrawTooltip(param.description);
 		}
 
-		else if ("dropdown_int" == param.type) {
+		else if ("dropdown_int" == param.data_type) {
 			std::string cur_item;
 
 			for (const auto& item : param.int_dropdown) {
@@ -339,10 +318,10 @@ void Editor::Param_Gimmick() {
 	// check for params
 	bool found = false;
 
-	std::vector<GmkParam> params;
+	std::vector<Param> params;
 
 	for (const auto& pair : params_general) {
-		if (pair.first.first != std::string(node->gmk->name)) {
+		if (pair.first.first != std::string(node->gmk->name) || pair.second[0].owner_type != "gimmick") {
 			continue;
 		}
 		else {
@@ -358,14 +337,14 @@ void Editor::Param_Gimmick() {
 	}
 
 	for (const auto& param : params) {
-		if ("int" == param.type) {
+		if ("int" == param.data_type) {
 			int val = Swap32(node->gmk->params.ints[param.slot]);
 			ImGui::InputInt(param.title.c_str(), &val, 1, 5);
 			node->gmk->params.ints[param.slot] = Swap32(val);
 
 			Quilt::Util::DrawTooltip(param.description);
 		}
-		else if ("float" == param.type) {
+		else if ("float" == param.data_type) {
 			float val = SwapF32(node->gmk->params.floats[param.slot]);
 			ImGui::InputFloat(param.title.c_str(), &val, 0.1f, 1.0f);
 			node->gmk->params.floats[param.slot] = SwapF32(val);
@@ -377,6 +356,156 @@ void Editor::Param_Gimmick() {
 	ImGui::End();
 }
 
+void Editor::Param_Path() {
+	ImGui::Begin("Path Parameters");
+	PathNode* node = reinterpret_cast<PathNode*>(selected_node);
+	ImGui::InputText("Name", node->path->name, 0x20);
+	
+	bool found = false;
+	std::vector<Param> params;
+
+	for (const auto& pair : params_general) {
+		if (pair.first.first != std::string(node->path->name) || pair.second[0].owner_type != "path") {
+			continue;
+		} else {
+			found = true;
+			params = pair.second;
+			break;
+		}
+	}
+
+	if (!found) {
+		ImGui::End();
+		return;
+	}
+
+	for (const auto& param : params) {
+		if (param.owner_type != "path") continue;
+		if ("int" == param.data_type) {
+			int val = Swap32(node->path->params.ints[param.slot]);
+			ImGui::InputInt(param.title.c_str(), &val, 1, 5);
+			node->path->params.ints[param.slot] = Swap32(val);
+
+			Quilt::Util::DrawTooltip(param.description);
+		}
+		else if ("float" == param.data_type) {
+			float val = SwapF32(node->path->params.floats[param.slot]);
+			ImGui::InputFloat(param.title.c_str(), &val, 0.1f, 1.0f);
+			node->path->params.floats[param.slot] = SwapF32(val);
+
+			Quilt::Util::DrawTooltip(param.description);
+		}
+		else if ("string" == param.data_type) {
+			ImGui::InputText(param.title.c_str(), node->path->params.strings[param.slot], 0x20);
+			Quilt::Util::DrawTooltip(param.description);
+		}
+		else if ("dropdown_int" == param.data_type) {
+			std::string cur_item;
+
+			for (const auto& item : param.int_dropdown) {
+				if (Swap32(node->path->params.ints[param.slot]) == item.first) {
+					cur_item = item.second;
+					break;
+				}
+			}
+
+			if (ImGui::BeginCombo(param.title.c_str(), cur_item.c_str())) {
+				for (const auto& item : param.int_dropdown) {
+					bool selected = Swap32(node->path->params.ints[param.slot]) == item.first;
+
+					if (ImGui::Selectable(item.second.c_str(), selected)) {
+						node->path->params.ints[param.slot] = Swap32(item.first);
+					}
+
+					if (selected) ImGui::SetItemDefaultFocus();
+				}
+
+				ImGui::EndCombo();
+
+				Quilt::Util::DrawTooltip(param.description);
+			}
+		}
+	}
+	ImGui::End();
+}
+
+void Editor::Param_RaceCourseInfo() {
+	ImGui::Begin("Race Course Parameters");
+	RaceCourseInfoNode* node = reinterpret_cast<RaceCourseInfoNode*>(selected_node);
+	ImGui::InputText("Name", node->rcinfo->name, 0x20);
+
+	node->rcinfo->position.Swap();
+	ImGui::InputFloat("X Position", &node->rcinfo->position.x, 0.1f, 1.0f);
+	ImGui::InputFloat("Y Position", &node->rcinfo->position.y, 0.1f, 1.0f);
+	node->rcinfo->position.Swap();
+
+	bool found = false;
+	std::vector<Param> params;
+
+	for (const auto& pair : params_general) {
+		if (pair.first.first != std::string(node->rcinfo->name) || pair.second[0].owner_type != "race") {
+			continue;
+		} else {
+			found = true;
+			params = pair.second;
+			break;
+		}
+	}
+
+	if (!found) {
+		ImGui::End();
+		return;
+	}
+
+	for (const auto& param : params) {
+		if (param.owner_type != "race") continue;
+		if ("int" == param.data_type) {
+			int val = Swap32(node->rcinfo->params.ints[param.slot]);
+			ImGui::InputInt(param.title.c_str(), &val, 1, 5);
+			node->rcinfo->params.ints[param.slot] = Swap32(val);
+
+			Quilt::Util::DrawTooltip(param.description);
+		}
+		else if ("float" == param.data_type) {
+			float val = SwapF32(node->rcinfo->params.floats[param.slot]);
+			ImGui::InputFloat(param.title.c_str(), &val, 0.1f, 1.0f);
+			node->rcinfo->params.floats[param.slot] = SwapF32(val);
+
+			Quilt::Util::DrawTooltip(param.description);
+		}
+		else if ("string" == param.data_type) {
+			ImGui::InputText(param.title.c_str(), node->rcinfo->params.strings[param.slot], 0x20);
+			Quilt::Util::DrawTooltip(param.description);
+		}
+		else if ("dropdown_int" == param.data_type) {
+			std::string cur_item;
+
+			for (const auto& item : param.int_dropdown) {
+				if (Swap32(node->rcinfo->params.ints[param.slot]) == item.first) {
+					cur_item = item.second;
+					break;
+				}
+			}
+
+			if (ImGui::BeginCombo(param.title.c_str(), cur_item.c_str())) {
+				for (const auto& item : param.int_dropdown) {
+					bool selected = Swap32(node->rcinfo->params.ints[param.slot]) == item.first;
+
+					if (ImGui::Selectable(item.second.c_str(), selected)) {
+						node->rcinfo->params.ints[param.slot] = Swap32(item.first);
+					}
+
+					if (selected) ImGui::SetItemDefaultFocus();
+				}
+
+				ImGui::EndCombo();
+
+				Quilt::Util::DrawTooltip(param.description);
+			}
+		}
+	}
+	ImGui::End();
+}
 
 void Editor::Param_Zone() {
 	ImGui::Begin("Zone Parameters");
@@ -396,7 +525,7 @@ void Editor::Param_Zone() {
 
 	bool found = false;
 
-	std::vector<GmkParam> params;
+	std::vector<Param> params;
 
 	for (const auto& pair : params_general) {
 		if (pair.first.first != std::string(node->zone->name)) {
@@ -415,25 +544,26 @@ void Editor::Param_Zone() {
 	}
 
 	for (const auto& param : params) {
-		if ("int" == param.type) {
+		if (param.owner_type != "zone") continue;
+		if ("int" == param.data_type) {
 			int val = Swap32(node->zone->params.ints[param.slot]);
 			ImGui::InputInt(param.title.c_str(), &val, 1, 5);
 			node->zone->params.ints[param.slot] = Swap32(val);
 
 			Quilt::Util::DrawTooltip(param.description);
 		}
-		else if ("float" == param.type) {
+		else if ("float" == param.data_type) {
 			float val = SwapF32(node->zone->params.floats[param.slot]);
 			ImGui::InputFloat(param.title.c_str(), &val, 0.1f, 1.0f);
 			node->zone->params.floats[param.slot] = SwapF32(val);
 
 			Quilt::Util::DrawTooltip(param.description);
 		}
-		else if ("string" == param.type) {
+		else if ("string" == param.data_type) {
 			ImGui::InputText(param.title.c_str(), node->zone->params.strings[param.slot], 0x20);
 			Quilt::Util::DrawTooltip(param.description);
 		}
-		else if ("dropdown_int" == param.type) {
+		else if ("dropdown_int" == param.data_type) {
 			std::string cur_item;
 
 			for (const auto& item : param.int_dropdown) {

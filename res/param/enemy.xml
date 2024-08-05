@@ -3,7 +3,7 @@
 <root>
     <!-- special -->
     <enemy id="HELP_ROBOT" name="Metamortex" note="Allows Kirby to transform."/>
-    <!-- enemies -->
+    <!-- enemies, sorted by number -->
     <enemy id="ENEMY02" name="Uniclod" note=""/>
     <enemy id="ENEMY03" name="Buttonbee" note=""/>
 

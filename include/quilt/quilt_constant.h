@@ -24,8 +24,8 @@ static const u32 COLOR_PATH_ACTIVE              = 0xB2FF9EFF;
 static const u32 COLOR_PATH_INACTIVE            = 0xB2FF9E7F;
 static const u32 COLOR_ZONE_ACTIVE              = 0xFF8CC6FF;
 static const u32 COLOR_ZONE_INACTIVE            = 0xFF8CC67F;
-static const u32 COLOR_MISSION_INFO_ACTIVE      = 0x00FFFFFF;
-static const u32 COLOR_MISSION_INFO_INACTIVE    = 0x00FFFF7F;
+static const u32 COLOR_RACE_COURSE_INFO_ACTIVE  = 0x00FFFFFF;
+static const u32 COLOR_RACE_COURSE_INFO_INACTIVE= 0x00FFFF7F;
 static const u32 COLOR_ENEMY_ACTIVE             = 0xFF0000FF;
 static const u32 COLOR_ENEMY_INACTIVE           = 0xFF00007F;
 

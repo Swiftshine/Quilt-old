@@ -7,6 +7,7 @@ void Editor::ClearNodes() {
 	nodes_cmnGmk.clear();
 	nodes_gmk.clear();
 	nodes_path.clear();
+	nodes_rcinfo.clear();
 	nodes_zone.clear();
 	nodes_enemy.clear();
 }
@@ -60,6 +61,20 @@ void Editor::UpdateNodes() {
 			}
 		}
 	}
+
+	if (showRCInfo) {
+		for (auto& node : nodes_rcinfo) {
+			node.Update();
+		}
+	}
+	else {
+		if (selected_node) {
+			if (selected_node->GetType() == NodeBase::NodeType::RaceCourseInfo) {
+				DeselectNode();
+			}
+		}
+	}
+
 	if (showZones) {
 		for (auto& node : nodes_zone) {
 			node.Update();
@@ -152,6 +167,17 @@ void Editor::CreateNode(NodeBase::NodeType type) {
 			break;
 		}
 
+		case NodeBase::NodeType::RaceCourseInfo: {
+			Mapdata::Mapbin::RaceCourseInfo rcinfo = { 0 };
+			std::string temp = "NONE";
+			std::copy(temp.data(), temp.data() + 4, rcinfo.name);
+			Vec2f pos = GetWorldMousePosition().GetSwap();
+			rcinfo.position = Vec3f(pos.x, pos.y, 0);
+			nodes_rcinfo.emplace_back(rcinfo);
+			SelectNode(&nodes_rcinfo.back());
+			break;
+		}
+
 		
 		case NodeBase::NodeType::Zone: {
 			Mapdata::Mapbin::Zone zone = { 0 };
@@ -224,6 +250,18 @@ void Editor::DeleteNode() {
 			for (auto it = nodes_gmk.begin(); it != nodes_gmk.end(); it++) {
 				if (&(*it) == selected_node) {
 					nodes_gmk.erase(it);
+					selected_node = nullptr;
+					return;
+				}
+			}
+			break;
+		}
+
+
+		case NodeBase::NodeType::RaceCourseInfo: {
+			for (auto it = nodes_rcinfo.begin(); it != nodes_rcinfo.end(); it++) {
+				if (&(*it) == selected_node) {
+					nodes_rcinfo.erase(it);
 					selected_node = nullptr;
 					return;
 				}

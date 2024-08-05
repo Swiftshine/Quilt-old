@@ -103,8 +103,8 @@ namespace Mapbin {
     // variable length
     struct Path {
         char name[0x20];
-        u8 _20[0xD8];
         char type[0x20];
+        CommonParam params;
         u32 numPoints;
         /* present is a Vec2f[numPoints] */
     };
@@ -120,14 +120,14 @@ namespace Mapbin {
     static_assert(sizeof(Mapdata::Mapbin::Zone) == 296, "zone size is incorrect");
 
 
-    struct CourseInfo {
+    struct RaceCourseInfo {
         char name[0x20];
         char _20[0x20];
         CommonParam params;
         Vec3f position;
     };
 
-    static_assert(sizeof(Mapdata::Mapbin::CourseInfo) == 292, "course info size is incorrect");
+    static_assert(sizeof(Mapdata::Mapbin::RaceCourseInfo) == 292, "course info size is incorrect");
 }
 
 namespace Enbin {

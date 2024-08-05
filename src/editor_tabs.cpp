@@ -10,6 +10,7 @@ void Editor::Tabs() {
 void Editor::Tabs_Canvas() {
 	ImGui::Begin("Canvas");
 	if (!open) {
+		// maybe add something interesting?
 		ImGui::Text("Open a stage folder to get started.");
 		ImGui::End();
 		return;

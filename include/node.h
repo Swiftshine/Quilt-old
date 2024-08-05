@@ -15,6 +15,7 @@ public:
         Gimmick,
         Path,
         Zone,
+        RaceCourseInfo,
         Enemy,
     };
 public:
@@ -161,6 +162,23 @@ public:
 public:
     std::shared_ptr<Mapdata::Mapbin::Zone> zone;
 };
+/* Race Course Info */
+class RaceCourseInfoNode : public NodeBase {
+public:
+    RaceCourseInfoNode(Mapdata::Mapbin::RaceCourseInfo& newCourseInfo) {
+        rcinfo = std::make_shared<Mapdata::Mapbin::RaceCourseInfo>();
+        *rcinfo = newCourseInfo;
+        type = NodeType::RaceCourseInfo;
+    }
+
+    ~RaceCourseInfoNode() { }
+
+    virtual void Update() override;
+
+public:
+    std::shared_ptr<Mapdata::Mapbin::RaceCourseInfo> rcinfo;
+};
+
 
 /* Enemy */
 class EnemyNode : public NodeBase {

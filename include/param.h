@@ -10,9 +10,10 @@ struct Translation {
 	std::string name; // english ver
 };
 
-struct GmkParam {
+struct Param {
 	std::string title;
-	std::string type;
+	std::string owner_type;
+	std::string data_type;
 	int slot;
 	std::string description;
 	std::vector<IntLabelPair> int_dropdown;

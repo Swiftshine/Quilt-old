@@ -37,6 +37,11 @@ void Editor::Toolbox_Visibility() {
 
 	b = showEnemies;
 	if (ImGui::Checkbox("Show Enemies", &b)) showEnemies = b;
+
+	b = showRCInfo;
+	if (ImGui::Checkbox("Show Race Course Information", &b)) showRCInfo = b;
+
+
 }
 
 void Editor::Toolbox_StringSearch() {

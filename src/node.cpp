@@ -283,13 +283,54 @@ void PathNode::Update() {
 
         Vec2f p = point.GetSwap();
         Quilt::Util::DrawRect(p, WALL_POINT_SIZE, WALL_POINT_SIZE, drawCol, isSelected);
-        if (isSelected) {
-            p.y += 1.0;
-            Quilt::Util::DrawText(p, std::to_string(i));
-        }
     }
 
     Quilt::Util::DrawLines(points, drawCol, true);
+}
+
+void RaceCourseInfoNode::Update() {
+    // drag
+    rcinfo->position.Swap();
+
+    // start - check if i got clicked
+    if (Quilt::Util::IsRectHovered(rcinfo->position, GIMMICK_SQUARE_SIZE, GIMMICK_SQUARE_SIZE)) {
+        Quilt::Util::DrawTooltip(rcinfo->name, false);
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+            Editor::Instance()->SelectNode(this);
+            Vec2f worldMouse = Editor::Instance()->GetWorldMousePosition();
+
+            // calculate drag offs
+            if (!isDragOffsInited) {
+                dragOffs.x = worldMouse.x - rcinfo->position.x;
+                dragOffs.y = worldMouse.y - rcinfo->position.y;
+                isDragOffsInited = true;
+            }
+        }
+    }
+
+    // middle - change position if im being dragged
+    if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && isDragOffsInited) {
+        Vec2f worldMouse = Editor::Instance()->GetWorldMousePosition();
+
+        rcinfo->position.x = worldMouse.x - dragOffs.x;
+        rcinfo->position.y = worldMouse.y - dragOffs.y;
+    }
+
+    // end - reset
+    if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+        isDragOffsInited = false;
+    }
+
+    rcinfo->position.Swap();
+
+    RGBA drawCol = COLOR_RACE_COURSE_INFO_INACTIVE;
+    if (isSelected) {
+        drawCol = COLOR_RACE_COURSE_INFO_ACTIVE;
+    }
+
+    // draw
+    Vec2f p = rcinfo->position.GetSwap();
+    Quilt::Util::DrawRect(p, GIMMICK_SQUARE_SIZE, GIMMICK_SQUARE_SIZE, drawCol);
 }
 
 void ZoneNode::Update() {
